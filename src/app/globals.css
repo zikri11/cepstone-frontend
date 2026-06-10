@@ -59,6 +59,8 @@
   --animate-aurora-1: aurora-1 14s ease-in-out infinite alternate;
   --animate-aurora-2: aurora-2 18s ease-in-out infinite alternate;
   --animate-aurora-3: aurora-3 22s ease-in-out infinite alternate;
+  --animate-meteor: meteor 5s linear infinite;
+  --animate-retro-grid: retro-grid 18s linear infinite;
 }
 
 :root {
@@ -237,7 +239,32 @@
   }
 }
 
+@keyframes meteor {
+  0% {
+    transform: rotate(var(--meteor-angle, 215deg)) translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--meteor-angle, 215deg)) translateX(-600px);
+    opacity: 0;
+  }
+}
+
+@keyframes retro-grid {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .animate-meteor,
+  .animate-retro-grid,
   .animate-marquee,
   .animate-marquee-vertical,
   .animate-shimmer,
