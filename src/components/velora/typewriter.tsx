@@ -63,14 +63,27 @@ export function Typewriter({
     );
   }
 
+  const longest = words.reduce((a, b) => (b.length > a.length ? b : a), "");
+
+  // Both spans share one grid cell: the invisible longest word reserves
+  // the final size, so typing never shifts surrounding layout.
   return (
-    <span data-slot="typewriter" className={cn(className)} {...props}>
-      {text}
-      {cursor && (
-        <span aria-hidden className="animate-pulse font-light">
-          |
-        </span>
-      )}
+    <span
+      data-slot="typewriter"
+      className={cn("inline-grid text-left", className)}
+      {...props}
+    >
+      <span className="sr-only">{words[0]}</span>
+      <span aria-hidden className="invisible col-start-1 row-start-1">
+        {longest}
+        {cursor && <span className="font-light">|</span>}
+      </span>
+      <span aria-hidden className="col-start-1 row-start-1">
+        {text}
+        {cursor && (
+          <span className="animate-pulse font-light">|</span>
+        )}
+      </span>
     </span>
   );
 }

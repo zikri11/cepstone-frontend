@@ -32,11 +32,18 @@ export function FlipWords({ words, duration = 2600, className }: FlipWordsProps)
     return <span className={cn(className)}>{words[0]}</span>;
   }
 
+  const longest = words.reduce((a, b) => (b.length > a.length ? b : a), "");
+
+  // The invisible longest word reserves the cell size so flipping
+  // between words never shifts surrounding layout.
   return (
     <span
       data-slot="flip-words"
-      className={cn("relative inline-block align-bottom", className)}
+      className={cn("inline-grid text-left align-bottom", className)}
     >
+      <span aria-hidden className="invisible col-start-1 row-start-1">
+        {longest}
+      </span>
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
           key={words[index]}
@@ -44,7 +51,7 @@ export function FlipWords({ words, duration = 2600, className }: FlipWordsProps)
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -14, filter: "blur(6px)" }}
           transition={{ type: "spring", stiffness: 240, damping: 26 }}
-          className="inline-block"
+          className="col-start-1 row-start-1 inline-block"
         >
           {words[index]}
         </motion.span>
