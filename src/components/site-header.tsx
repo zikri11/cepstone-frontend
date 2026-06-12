@@ -1,0 +1,34 @@
+import Link from "next/link";
+import { SparklesIcon, StarIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
+export function SiteHeader() {
+  return (
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-background/70 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 lg:px-8">
+        <Link href="/" className="flex items-center gap-2 font-semibold">
+          <SparklesIcon className="size-5 text-primary" />
+          Velora UI
+        </Link>
+        <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
+          <Link href="/components" className="transition-colors hover:text-foreground">
+            Components
+          </Link>
+          <Link href="/#pricing" className="transition-colors hover:text-foreground">
+            Pricing
+          </Link>
+          <Link href="/#faq" className="transition-colors hover:text-foreground">
+            FAQ
+          </Link>
+        </nav>
+        <Button variant="outline" size="sm" asChild>
+          <a href="https://github.com" rel="noopener">
+            <StarIcon />
+            Star on GitHub
+          </a>
+        </Button>
+      </div>
+    </header>
+  );
+}

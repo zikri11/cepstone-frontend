@@ -1,0 +1,43 @@
+# Velora UI
+
+> Free, MIT-licensed animated React components and landing page templates.
+> Built with Next.js, Tailwind CSS 4, shadcn/ui and Motion.
+
+Install any component with the shadcn CLI:
+
+    npx shadcn@latest add https://velora.dev/r/<name>.json
+
+## Components
+
+- [Aurora Background](https://velora.dev/components/aurora-background): Velora's signature drifting aurora gradient backdrop. Install: `npx shadcn@latest add https://velora.dev/r/aurora-background.json`
+- [Grid & Dot Pattern](https://velora.dev/components/grid-pattern): SVG grid and dot backdrops with maskable depth. Install: `npx shadcn@latest add https://velora.dev/r/grid-pattern.json`
+- [Retro Grid](https://velora.dev/components/retro-grid): Perspective grid scrolling forever toward the horizon. Install: `npx shadcn@latest add https://velora.dev/r/retro-grid.json`
+- [Particles](https://velora.dev/components/particles): Drifting, twinkling particle field on a lightweight canvas. Install: `npx shadcn@latest add https://velora.dev/r/particles.json`
+- [Meteors](https://velora.dev/components/meteors): Falling meteor streaks for dark hero and CTA sections. Install: `npx shadcn@latest add https://velora.dev/r/meteors.json`
+- [Background Beams](https://velora.dev/components/background-beams): Light beams flowing along curved paths behind content. Install: `npx shadcn@latest add https://velora.dev/r/background-beams.json`
+- [Lamp](https://velora.dev/components/lamp): A glowing lamp-line header that expands into view. Install: `npx shadcn@latest add https://velora.dev/r/lamp.json`
+- [Animated Gradient Text](https://velora.dev/components/animated-gradient-text): Brand gradient sweeping continuously through text. Install: `npx shadcn@latest add https://velora.dev/r/animated-gradient-text.json`
+- [Text Reveal](https://velora.dev/components/text-reveal): Word-by-word blur reveal on scroll. Install: `npx shadcn@latest add https://velora.dev/r/text-reveal.json`
+- [Typewriter](https://velora.dev/components/typewriter): Types, holds and deletes through a list of words. Install: `npx shadcn@latest add https://velora.dev/r/typewriter.json`
+- [Flip Words](https://velora.dev/components/flip-words): Cycles words with a springy blur-flip transition. Install: `npx shadcn@latest add https://velora.dev/r/flip-words.json`
+- [Sparkles Text](https://velora.dev/components/sparkles-text): Twinkling stars orbiting your headline. Install: `npx shadcn@latest add https://velora.dev/r/sparkles-text.json`
+- [Text Shimmer](https://velora.dev/components/text-shimmer): A soft light sweep — great for AI loading states. Install: `npx shadcn@latest add https://velora.dev/r/text-shimmer.json`
+- [Number Ticker](https://velora.dev/components/number-ticker): Springs a number up when it enters the viewport. Install: `npx shadcn@latest add https://velora.dev/r/number-ticker.json`
+- [Shimmer Button](https://velora.dev/components/shimmer-button): CTA button with a continuous light sweep. Install: `npx shadcn@latest add https://velora.dev/r/shimmer-button.json`
+- [Confetti](https://velora.dev/components/confetti): Dependency-free confetti burst, fired from anywhere. Install: `npx shadcn@latest add https://velora.dev/r/confetti.json`
+- [Bento Grid](https://velora.dev/components/bento-grid): Feature bento with hover-reveal CTAs and rich backgrounds. Install: `npx shadcn@latest add https://velora.dev/r/bento-grid.json`
+- [Spotlight Card](https://velora.dev/components/spotlight-card): A radial glow that follows the cursor across the card. Install: `npx shadcn@latest add https://velora.dev/r/spotlight-card.json`
+- [Tilt Card](https://velora.dev/components/tilt-card): 3D perspective tilt that tracks the cursor. Install: `npx shadcn@latest add https://velora.dev/r/tilt-card.json`
+- [Marquee](https://velora.dev/components/marquee): Seamless scrolling loop — horizontal, vertical, hover-pause. Install: `npx shadcn@latest add https://velora.dev/r/marquee.json`
+- [Animated List](https://velora.dev/components/animated-list): Looping feed that springs each item in, newest on top. Install: `npx shadcn@latest add https://velora.dev/r/animated-list.json`
+- [Orbiting Circles](https://velora.dev/components/orbiting-circles): Items evenly distributed on rotating orbital rings. Install: `npx shadcn@latest add https://velora.dev/r/orbiting-circles.json`
+- [Avatar Circles](https://velora.dev/components/avatar-circles): Stacked initials avatars with a +N badge — zero images. Install: `npx shadcn@latest add https://velora.dev/r/avatar-circles.json`
+- [Animated Tooltip](https://velora.dev/components/animated-tooltip): Avatar row with springy name tooltips on hover. Install: `npx shadcn@latest add https://velora.dev/r/animated-tooltip.json`
+- [Dock](https://velora.dev/components/dock): macOS-style dock with cursor magnification. Install: `npx shadcn@latest add https://velora.dev/r/dock.json`
+- [Border Beam](https://velora.dev/components/border-beam): A beam of light traveling around any border. Install: `npx shadcn@latest add https://velora.dev/r/border-beam.json`
+- [Animated Beam](https://velora.dev/components/animated-beam): Draws an animated connection between any two elements. Install: `npx shadcn@latest add https://velora.dev/r/animated-beam.json`
+- [Blur Fade](https://velora.dev/components/blur-fade): The workhorse entrance — blur, fade and drift into view. Install: `npx shadcn@latest add https://velora.dev/r/blur-fade.json`
+- [Scroll Progress](https://velora.dev/components/scroll-progress): Gradient page-progress bar pinned to the top. Install: `npx shadcn@latest add https://velora.dev/r/scroll-progress.json`
+- [Browser Mockup](https://velora.dev/components/browser-mockup): Browser window frame for product screenshots. Install: `npx shadcn@latest add https://velora.dev/r/browser-mockup.json`
+- [iPhone Mockup](https://velora.dev/components/iphone-mockup): iPhone frame with dynamic island — pure CSS. Install: `npx shadcn@latest add https://velora.dev/r/iphone-mockup.json`
+- [Terminal](https://velora.dev/components/terminal): A terminal window that types its lines in view. Install: `npx shadcn@latest add https://velora.dev/r/terminal.json`

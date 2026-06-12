@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   CheckIcon,
   GaugeIcon,
@@ -20,6 +19,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ActivityList } from "@/components/demo/activity-list";
+import { SiteHeader } from "@/components/site-header";
 import { HeroMockup } from "@/components/demo/hero-mockup";
 import { IntegrationsBeam } from "@/components/demo/integrations-beam";
 import { AnimatedGradientText } from "@/components/velora/animated-gradient-text";
@@ -137,32 +137,7 @@ export default function Home() {
     <main className="relative">
       <ScrollProgress />
 
-      {/* Header */}
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-background/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <SparklesIcon className="size-5 text-primary" />
-            Velora UI
-          </Link>
-          <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-            <a href="#features" className="transition-colors hover:text-foreground">
-              Components
-            </a>
-            <a href="#pricing" className="transition-colors hover:text-foreground">
-              Pricing
-            </a>
-            <a href="#faq" className="transition-colors hover:text-foreground">
-              FAQ
-            </a>
-          </nav>
-          <Button variant="outline" size="sm" asChild>
-            <a href="https://github.com" rel="noopener">
-              <StarIcon />
-              Star on GitHub
-            </a>
-          </Button>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Hero */}
       <section className="relative overflow-hidden pt-40 pb-24 lg:pt-48 lg:pb-28">

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { BorderBeam } from "@/components/velora/border-beam";
+import { BrowserMockup } from "@/components/velora/browser-mockup";
 import { NumberTicker } from "@/components/velora/number-ticker";
 import { cn } from "@/lib/utils";
 
@@ -43,21 +44,8 @@ export function HeroMockup({ className }: { className?: string }) {
         className="absolute -inset-8 rounded-[2rem] bg-gradient-to-r from-brand-from via-brand-via to-brand-to opacity-20 blur-3xl"
       />
 
-      <div className="relative overflow-hidden rounded-2xl border bg-card/80 shadow-2xl backdrop-blur">
+      <BrowserMockup url="velora.dev/dashboard" className="relative">
         <BorderBeam size={96} duration={10} />
-
-        {/* Browser chrome */}
-        <div className="flex items-center gap-3 border-b border-border/60 px-4 py-3">
-          <div className="flex gap-1.5">
-            <span className="size-3 rounded-full bg-red-500/70" />
-            <span className="size-3 rounded-full bg-yellow-500/70" />
-            <span className="size-3 rounded-full bg-green-500/70" />
-          </div>
-          <div className="mx-auto flex h-7 w-64 items-center justify-center rounded-md bg-muted/60 text-xs text-muted-foreground">
-            velora.dev/dashboard
-          </div>
-          <div className="w-14" />
-        </div>
 
         <div className="flex">
           {/* Sidebar */}
@@ -139,7 +127,7 @@ export function HeroMockup({ className }: { className?: string }) {
             </div>
           </div>
         </div>
-      </div>
+      </BrowserMockup>
     </div>
   );
 }
