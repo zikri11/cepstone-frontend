@@ -67,15 +67,15 @@ export const componentDemos: Record<string, React.ReactNode> = {
     </div>
   ),
   particles: (
-    <div className="relative flex h-full min-h-64 w-full items-center justify-center overflow-hidden rounded-lg bg-neutral-950">
+    <div className="relative flex h-full min-h-64 w-full items-center justify-center overflow-hidden rounded-lg bg-neutral-950 text-white">
       <Particles quantity={80} />
-      <p className="relative text-xl font-semibold text-white">Particles</p>
+      <p className="relative text-xl font-semibold">Particles</p>
     </div>
   ),
   meteors: (
-    <div className="relative flex h-full min-h-64 w-full items-center justify-center overflow-hidden rounded-lg bg-neutral-950">
-      <Meteors number={12} />
-      <p className="relative text-xl font-semibold text-white">Meteors</p>
+    <div className="relative flex h-full min-h-64 w-full items-center justify-center overflow-hidden rounded-lg bg-neutral-950 text-white">
+      <Meteors number={12} className="bg-white/70 before:from-white/60" />
+      <p className="relative text-xl font-semibold">Meteors</p>
     </div>
   ),
   "background-beams": (
@@ -85,9 +85,9 @@ export const componentDemos: Record<string, React.ReactNode> = {
     </div>
   ),
   lamp: (
-    <div className="w-full overflow-hidden rounded-lg bg-neutral-950 [&_[data-slot=lamp]]:py-12">
-      <Lamp className="bg-transparent [&>div:first-child]:min-h-44">
-        <h3 className="text-2xl font-semibold text-white">Lit from above</h3>
+    <div className="w-full overflow-hidden rounded-lg [&_[data-slot=lamp]]:py-12">
+      <Lamp className="[&>div:first-child]:min-h-44">
+        <h3 className="text-2xl font-semibold">Lit from above</h3>
       </Lamp>
     </div>
   ),

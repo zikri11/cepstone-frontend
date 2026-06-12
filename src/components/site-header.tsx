@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SparklesIcon, StarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function SiteHeader() {
   return (
@@ -22,12 +23,15 @@ export function SiteHeader() {
             FAQ
           </Link>
         </nav>
-        <Button variant="outline" size="sm" asChild>
-          <a href="https://github.com" rel="noopener">
-            <StarIcon />
-            Star on GitHub
-          </a>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Button variant="outline" size="sm" asChild>
+            <a href="https://github.com" rel="noopener">
+              <StarIcon />
+              Star on GitHub
+            </a>
+          </Button>
+        </div>
       </div>
     </header>
   );
