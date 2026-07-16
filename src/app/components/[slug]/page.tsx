@@ -9,6 +9,7 @@ import { codeToHtml } from "shiki";
 import { CopyButton } from "@/components/docs/copy-button";
 import { componentDemos } from "@/components/demo/component-demos";
 import { componentsMeta } from "@/lib/components-meta";
+import componentStats from "@/lib/component-stats.json";
 
 const REGISTRY_BASE =
   process.env.NEXT_PUBLIC_REGISTRY_URL ?? "https://velora.dev/r";
@@ -62,6 +63,37 @@ export default async function ComponentPage({
 
       <h1 className="text-3xl font-semibold tracking-tight">{meta.title}</h1>
       <p className="mt-2 max-w-2xl text-muted-foreground">{meta.description}</p>
+
+      {/* Receipts — generated at build time by scripts/component-stats.mjs */}
+      {(() => {
+        const stats = (
+          componentStats as Record<
+            string,
+            { bytes: number; gzip: number; deps: string[] }
+          >
+        )[slug];
+        if (!stats) return null;
+        const chips = [
+          `${(stats.gzip / 1024).toFixed(1)} KB gzipped`,
+          stats.deps.length === 0
+            ? "Zero dependencies"
+            : `Deps: ${stats.deps.join(", ")}`,
+          "Reduced-motion safe",
+          "Base UI & Radix compatible",
+        ];
+        return (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {chips.map((chip) => (
+              <span
+                key={chip}
+                className="rounded-full border border-border/60 bg-card px-3 py-1 text-xs font-medium text-muted-foreground"
+              >
+                {chip}
+              </span>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* Preview */}
       <div className="relative mt-8 flex min-h-80 items-center justify-center overflow-hidden rounded-2xl border bg-background p-8">
