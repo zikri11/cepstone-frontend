@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Velora UI
 
-## Getting Started
+**Free, MIT-licensed animated components and complete landing templates for React.**
 
-First, run the development server:
+32+ animated shadcn/ui components and a full multi-page SaaS template — home, pricing, blog (MDX), auth, changelog, contact and 404 — built with Next.js 16, Tailwind CSS 4 and Motion. The free tier isn't a teaser: everything on the site ships under MIT, commercial use included.
+
+## Why Velora
+
+- **The free tier is the whole product.** Complete assembled pages, not just isolated components. The kind of template that costs $149–$299 elsewhere is the baseline here.
+- **Animations with receipts.** Every component's docs page shows its gzipped size (0.6–1.5 KB — no Three.js payloads) and dependency count. 15 of 32 components have zero runtime dependencies; the rest use Motion and nothing else.
+- **Tokens, not hardcoded hues.** Components read your shadcn CSS variables. Rebrand every gradient, beam and glow by editing seven variables — ready-made presets on the [themes page](https://velora.dev/themes).
+- **Motion that asks permission.** A global `prefers-reduced-motion` kill switch covers every animation. Keyboard focus stays visible, markup stays semantic.
+- **Primitive-agnostic.** Velora components import neither Radix nor Base UI — they work in any shadcn project, whichever primitive layer you use.
+
+## Install components
+
+Every component is a standard shadcn registry item:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npx shadcn@latest add https://velora.dev/r/aurora-background.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Components carry their own keyframes and brand tokens, so they work standalone in existing projects. Browse the full catalog at [velora.dev/components](https://velora.dev/components).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Use with AI agents
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Velora is a standard shadcn registry, so it plugs into the shadcn MCP server with zero extra setup — an agent in Cursor, Claude Code or VS Code can browse and install Velora components by name:
 
-## Learn More
+```bash
+pnpm dlx shadcn@latest mcp init --client claude
+```
 
-To learn more about Next.js, take a look at the following resources:
+For discovery, [llms.txt](https://velora.dev/llms.txt) lists every component with its install command, gzipped size and dependency count — so an agent can pick components by cost, not just by looks.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Use the template
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+git clone <repo-url> my-landing
+cd my-landing
+pnpm install
+pnpm dev
+```
 
-## Deploy on Vercel
+Then make it yours:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Content** — pages live in `src/app/`, section data is inline per page.
+2. **Brand** — swap the token block in `src/app/globals.css` (or copy a preset from `/themes`).
+3. **Blog** — add MDX files under `src/app/blog/(posts)/<slug>/page.mdx` and register them in `src/lib/blog-posts.ts`.
+4. **Forms** — contact and auth forms are frontend-only demos; wire them to your backend or auth provider.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Scripts
+
+```bash
+pnpm dev              # dev server (Turbopack)
+pnpm build            # production build (all pages static)
+pnpm lint             # eslint
+pnpm registry:build   # component stats + registry.json + public/r/*.json + llms.txt
+```
+
+## Stack
+
+Next.js 16 · React 19 · Tailwind CSS 4 · shadcn/ui · Motion · TypeScript
+
+## License
+
+[MIT](./LICENSE) — free for personal and commercial use, no attribution required.

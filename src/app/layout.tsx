@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { siteConfig } from "@/lib/site-config";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -15,9 +16,36 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Velora UI — Free animated React landing page components & templates",
-  description:
-    "A free, open-source library of animated shadcn/ui components and landing page templates. Built with Next.js 16, Tailwind CSS 4 and Motion.",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: `${siteConfig.name} — ${siteConfig.tagline}`,
+    template: `%s — ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: [
+    "shadcn ui",
+    "animated components",
+    "react components",
+    "landing page template",
+    "tailwind css",
+    "motion",
+    "magic ui alternative",
+    "aceternity alternative",
+    "free ui library",
+  ],
+  authors: [{ name: siteConfig.name }],
+  openGraph: {
+    type: "website",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    description: siteConfig.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    description: siteConfig.description,
+  },
 };
 
 export default function RootLayout({
