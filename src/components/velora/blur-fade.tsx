@@ -42,14 +42,21 @@ export function BlurFade({
           [axis[direction]]: sign[direction] * offset,
         };
 
+  // Keep `initial` identical on server and client (the server can't know the
+  // motion preference — branching it mismatches on hydration). Under reduced
+  // motion the reveal still happens, just instantly.
   return (
     <motion.div
       data-slot="blur-fade"
       className={cn(className)}
-      initial={reducedMotion ? false : hidden}
+      initial={hidden}
       whileInView={{ opacity: 1, filter: "blur(0px)", x: 0, y: 0 }}
       viewport={{ once, margin: "0px 0px -10% 0px" }}
-      transition={{ delay, duration, ease: [0.21, 0.47, 0.32, 0.98] }}
+      transition={
+        reducedMotion
+          ? { duration: 0 }
+          : { delay, duration, ease: [0.21, 0.47, 0.32, 0.98] }
+      }
     >
       {children}
     </motion.div>

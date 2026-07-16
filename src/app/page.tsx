@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/accordion";
 import { ActivityList } from "@/components/demo/activity-list";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { HeroMockup } from "@/components/demo/hero-mockup";
 import { IntegrationsBeam } from "@/components/demo/integrations-beam";
 import { AnimatedGradientText } from "@/components/velora/animated-gradient-text";
@@ -55,7 +56,7 @@ const logos = [
 ];
 
 const stats = [
-  { value: 22, suffix: "+", prefix: "", label: "Animated components" },
+  { value: 32, suffix: "+", prefix: "", label: "Animated components" },
   { value: 100, suffix: "", prefix: "", label: "Lighthouse performance" },
   { value: 0, suffix: "", prefix: "$", label: "Forever. MIT licensed" },
   { value: 5, suffix: " min", prefix: "", label: "To your first page" },
@@ -117,7 +118,7 @@ const faqs = [
 ];
 
 const freeFeatures = [
-  "22+ animated components",
+  "32+ animated components",
   "Complete SaaS landing template",
   "Dark mode + full accessibility",
   "MIT license — commercial use OK",
@@ -646,16 +647,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/40 py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-sm text-muted-foreground md:flex-row lg:px-8">
-          <span className="flex items-center gap-2">
-            <SparklesIcon className="size-4 text-primary" />
-            Velora UI — MIT licensed
-          </span>
-          <span>Built with Next.js 16, Tailwind CSS 4 & Motion</span>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

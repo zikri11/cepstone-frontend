@@ -30,14 +30,16 @@ export function BorderBeam({
   colorFrom = "var(--brand-from)",
   colorTo = "var(--brand-to)",
 }: BorderBeamProps) {
+  // Hide via CSS + skip the animation under reduced motion; never branch the
+  // rendered tree on it — the server can't know the preference and would
+  // mismatch on hydration.
   const reducedMotion = useReducedMotion();
-  if (reducedMotion) return null;
 
   return (
     <div
       aria-hidden
       data-slot="border-beam"
-      className="pointer-events-none absolute inset-0 rounded-[inherit] border border-transparent [mask-clip:padding-box,border-box] [mask-composite:intersect] [mask-image:linear-gradient(transparent,transparent),linear-gradient(#000,#000)]"
+      className="pointer-events-none absolute inset-0 rounded-[inherit] border border-transparent [mask-clip:padding-box,border-box] [mask-composite:intersect] [mask-image:linear-gradient(transparent,transparent),linear-gradient(#000,#000)] motion-reduce:hidden"
     >
       <motion.div
         className={cn(
@@ -53,7 +55,11 @@ export function BorderBeam({
           } as React.CSSProperties
         }
         initial={{ offsetDistance: reverse ? "100%" : "0%" }}
-        animate={{ offsetDistance: reverse ? "0%" : "100%" }}
+        animate={
+          reducedMotion
+            ? undefined
+            : { offsetDistance: reverse ? "0%" : "100%" }
+        }
         transition={{
           repeat: Infinity,
           ease: "linear",

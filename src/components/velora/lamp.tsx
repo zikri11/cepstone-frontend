@@ -28,19 +28,19 @@ export function Lamp({ children, className }: LampProps) {
         {/* Light cones */}
         <motion.div
           aria-hidden
-          initial={reducedMotion ? false : { opacity: 0.4, width: "12rem" }}
+          initial={{ opacity: 0.4, width: "12rem" }}
           whileInView={{ opacity: 0.9, width: "28rem" }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
+          transition={{ duration: reducedMotion ? 0 : 0.8, ease: "easeInOut" }}
           className="absolute right-1/2 h-44 [background-image:conic-gradient(from_70deg_at_center_top,var(--brand),transparent,transparent)]"
           style={{ opacity: 0.5 }}
         />
         <motion.div
           aria-hidden
-          initial={reducedMotion ? false : { opacity: 0.4, width: "12rem" }}
+          initial={{ opacity: 0.4, width: "12rem" }}
           whileInView={{ opacity: 0.9, width: "28rem" }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
+          transition={{ duration: reducedMotion ? 0 : 0.8, ease: "easeInOut" }}
           className="absolute left-1/2 h-44 [background-image:conic-gradient(from_290deg_at_center_top,transparent,transparent,var(--brand))]"
           style={{ opacity: 0.5 }}
         />
@@ -53,10 +53,10 @@ export function Lamp({ children, className }: LampProps) {
         {/* Lamp line */}
         <motion.div
           aria-hidden
-          initial={reducedMotion ? false : { width: "8rem" }}
+          initial={{ width: "8rem" }}
           whileInView={{ width: "20rem" }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
+          transition={{ duration: reducedMotion ? 0 : 0.8, ease: "easeInOut" }}
           className="absolute z-30 h-0.5 -translate-y-[4.5rem] rounded-full"
           style={{
             background: "var(--brand)",

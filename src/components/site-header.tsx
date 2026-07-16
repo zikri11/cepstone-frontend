@@ -3,6 +3,7 @@ import { SparklesIcon, StarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { siteConfig } from "@/lib/site-config";
 
 export function SiteHeader() {
   return (
@@ -16,17 +17,23 @@ export function SiteHeader() {
           <Link href="/components" className="transition-colors hover:text-foreground">
             Components
           </Link>
-          <Link href="/#pricing" className="transition-colors hover:text-foreground">
+          <Link href="/themes" className="transition-colors hover:text-foreground">
+            Themes
+          </Link>
+          <Link href="/pricing" className="transition-colors hover:text-foreground">
             Pricing
           </Link>
-          <Link href="/#faq" className="transition-colors hover:text-foreground">
-            FAQ
+          <Link href="/blog" className="transition-colors hover:text-foreground">
+            Blog
+          </Link>
+          <Link href="/changelog" className="transition-colors hover:text-foreground">
+            Changelog
           </Link>
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Button variant="outline" size="sm" asChild>
-            <a href="https://github.com" rel="noopener">
+            <a href={siteConfig.github} rel="noopener" target="_blank">
               <StarIcon />
               Star on GitHub
             </a>
