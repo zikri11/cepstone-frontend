@@ -7,13 +7,13 @@ interface AvatarCirclesProps extends React.HTMLAttributes<HTMLDivElement> {
   extra?: number;
 }
 
-const gradients = [
-  "from-violet-500 to-fuchsia-500",
-  "from-cyan-500 to-blue-500",
-  "from-amber-500 to-orange-600",
-  "from-emerald-500 to-teal-600",
-  "from-pink-500 to-rose-500",
-  "from-indigo-500 to-purple-600",
+const tones = [
+  "bg-blue-600",
+  "bg-slate-600",
+  "bg-sky-700",
+  "bg-indigo-600",
+  "bg-slate-700",
+  "bg-blue-800",
 ];
 
 export function AvatarCircles({
@@ -39,8 +39,8 @@ export function AvatarCircles({
             key={name}
             title={name}
             className={cn(
-              "flex size-10 items-center justify-center rounded-full bg-gradient-to-br text-xs font-semibold text-white ring-2 ring-background",
-              gradients[i % gradients.length]
+              "flex size-10 items-center justify-center rounded-full text-xs font-semibold text-white ring-2 ring-background",
+              tones[i % tones.length]
             )}
           >
             {initials}

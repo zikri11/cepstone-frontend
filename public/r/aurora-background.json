@@ -22,16 +22,16 @@
       "animate-aurora-3": "aurora-3 22s ease-in-out infinite alternate"
     },
     "light": {
-      "brand": "oklch(0.541 0.247 287)",
-      "brand-from": "oklch(0.541 0.247 287)",
-      "brand-via": "oklch(0.667 0.295 322)",
-      "brand-to": "oklch(0.715 0.143 215)"
+      "brand": "oklch(0.546 0.245 263)",
+      "brand-from": "oklch(0.546 0.245 263)",
+      "brand-via": "oklch(0.623 0.214 260)",
+      "brand-to": "oklch(0.685 0.169 237)"
     },
     "dark": {
-      "brand": "oklch(0.673 0.226 287)",
-      "brand-from": "oklch(0.673 0.226 287)",
-      "brand-via": "oklch(0.74 0.24 322)",
-      "brand-to": "oklch(0.789 0.122 215)"
+      "brand": "oklch(0.623 0.214 260)",
+      "brand-from": "oklch(0.623 0.214 260)",
+      "brand-via": "oklch(0.707 0.165 255)",
+      "brand-to": "oklch(0.746 0.16 233)"
     }
   },
   "css": {

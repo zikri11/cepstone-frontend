@@ -141,7 +141,7 @@ export default function Home() {
 
       {/* Hero */}
       <section className="relative overflow-hidden pt-40 pb-24 lg:pt-48 lg:pb-28">
-        <AuroraBackground intensity="medium" />
+        <AuroraBackground intensity="subtle" />
         <GridPattern
           width={48}
           height={48}
@@ -151,9 +151,9 @@ export default function Home() {
           <BlurFade delay={0} direction="down">
             <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-4 py-1.5 text-sm backdrop-blur">
               <SparklesIcon className="size-3.5 text-primary" />
-              <AnimatedGradientText className="font-medium">
+              <span className="font-medium">
                 Introducing Velora UI — free forever
-              </AnimatedGradientText>
+              </span>
             </span>
           </BlurFade>
 
@@ -262,7 +262,7 @@ export default function Home() {
           <BlurFade>
             <h2 className="mx-auto max-w-2xl text-center text-3xl font-semibold tracking-tight text-balance lg:text-5xl">
               Everything you need to{" "}
-              <AnimatedGradientText>ship beautiful</AnimatedGradientText>
+              <span className="text-primary">ship beautiful</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-muted-foreground">
               Assembled sections, not puzzle pieces. Every block below is built
@@ -354,7 +354,7 @@ export default function Home() {
               </span>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance lg:text-4xl">
                 Connect anything to{" "}
-                <AnimatedGradientText>everything</AnimatedGradientText>
+                <span className="text-primary">everything</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
                 The classic integrations diagram, rebuilt as a single component.
@@ -397,7 +397,7 @@ export default function Home() {
               </span>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance lg:text-4xl">
                 Show your product{" "}
-                <AnimatedGradientText>doing things</AnimatedGradientText>
+                <span className="text-primary">doing things</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
                 Notifications, sales, deploys — a looping feed that springs each
@@ -455,7 +455,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-4 lg:px-8">
           <BlurFade>
             <h2 className="mx-auto max-w-2xl text-center text-3xl font-semibold tracking-tight text-balance lg:text-5xl">
-              Builders <AnimatedGradientText>love it</AnimatedGradientText>
+              Builders <span className="text-primary">love it</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-muted-foreground">
               Hover the cards — they tilt in 3D. Another Velora primitive.
@@ -494,7 +494,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-4 lg:px-8">
           <BlurFade>
             <h2 className="mx-auto max-w-2xl text-center text-3xl font-semibold tracking-tight text-balance lg:text-5xl">
-              Free forever. <AnimatedGradientText>Pro later.</AnimatedGradientText>
+              Free forever. <span className="text-primary">Pro later.</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-muted-foreground">
               Everything on this page is free. Pro adds breadth — more niches,
@@ -536,9 +536,7 @@ export default function Home() {
               <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card p-8">
                 <BorderBeam size={80} duration={8} />
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">
-                    <AnimatedGradientText>Pro</AnimatedGradientText>
-                  </h3>
+                  <h3 className="text-lg font-semibold text-primary">Pro</h3>
                   <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-medium text-primary">
                     Coming soon
                   </span>
@@ -599,13 +597,12 @@ export default function Home() {
 
       {/* CTA */}
       <section className="relative overflow-hidden py-24 lg:py-32">
-        <AuroraBackground intensity="vivid" />
-        <Particles quantity={70} />
-        <Meteors number={6} />
+        <AuroraBackground intensity="subtle" />
+        <Particles quantity={50} />
         <div className="relative mx-auto max-w-4xl px-4 text-center lg:px-8">
           <BlurFade>
             <h2 className="text-4xl font-semibold tracking-tight text-balance lg:text-6xl">
-              Stop paying <AnimatedGradientText>$199</AnimatedGradientText> for
+              Stop paying <span className="text-primary">$199</span> for
               landing pages.
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
