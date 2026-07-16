@@ -4,6 +4,8 @@ import { componentsMeta } from "@/lib/components-meta";
 import { blogPosts } from "@/lib/blog-posts";
 import { siteConfig } from "@/lib/site-config";
 
+export const dynamic = "force-static";
+
 const BASE = siteConfig.url;
 
 export default function sitemap(): MetadataRoute.Sitemap {

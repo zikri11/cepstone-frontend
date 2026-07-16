@@ -2,6 +2,8 @@ import { ImageResponse } from "next/og";
 
 import { siteConfig } from "@/lib/site-config";
 
+// Prerender the PNG at build time so it ships as a static asset (output: export).
+export const dynamic = "force-static";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = `${siteConfig.name} — ${siteConfig.tagline}`;
