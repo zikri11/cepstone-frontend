@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Velora UI. Also published at [/changelog](https://velora.dev/changelog).
+All notable changes to Velora UI. Also published at [/changelog](https://velora.colorlib.com/changelog).
 
 ## 0.3.0 — 2026-07-16
 

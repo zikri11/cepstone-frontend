@@ -8,7 +8,7 @@ const meta = JSON.parse(
   readFileSync(resolve(root, "src/lib/components-meta.json"), "utf8")
 );
 
-const HOMEPAGE = process.env.REGISTRY_HOMEPAGE ?? "https://velora.dev";
+const HOMEPAGE = process.env.REGISTRY_HOMEPAGE ?? "https://velora.colorlib.com";
 
 // ---------------------------------------------------------------------------
 // Shared CSS fragments. Components copied into a foreign project need their

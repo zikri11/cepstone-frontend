@@ -10,9 +10,10 @@ import { CopyButton } from "@/components/docs/copy-button";
 import { componentDemos } from "@/components/demo/component-demos";
 import { componentsMeta } from "@/lib/components-meta";
 import componentStats from "@/lib/component-stats.json";
+import { siteConfig } from "@/lib/site-config";
 
 const REGISTRY_BASE =
-  process.env.NEXT_PUBLIC_REGISTRY_URL ?? "https://velora.dev/r";
+  process.env.NEXT_PUBLIC_REGISTRY_URL ?? `${siteConfig.url}/r`;
 
 export function generateStaticParams() {
   return componentsMeta.map((c) => ({ slug: c.slug }));

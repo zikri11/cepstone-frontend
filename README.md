@@ -8,7 +8,7 @@
 
 - **The free tier is the whole product.** Complete assembled pages, not just isolated components. The kind of template that costs $149–$299 elsewhere is the baseline here.
 - **Animations with receipts.** Every component's docs page shows its gzipped size (0.6–1.5 KB — no Three.js payloads) and dependency count. 15 of 32 components have zero runtime dependencies; the rest use Motion and nothing else.
-- **Tokens, not hardcoded hues.** Components read your shadcn CSS variables. Rebrand every gradient, beam and glow by editing seven variables — ready-made presets on the [themes page](https://velora.dev/themes).
+- **Tokens, not hardcoded hues.** Components read your shadcn CSS variables. Rebrand every gradient, beam and glow by editing seven variables — ready-made presets on the [themes page](https://velora.colorlib.com/themes).
 - **Motion that asks permission.** A global `prefers-reduced-motion` kill switch covers every animation. Keyboard focus stays visible, markup stays semantic.
 - **Primitive-agnostic.** Velora components import neither Radix nor Base UI — they work in any shadcn project, whichever primitive layer you use.
 
@@ -17,10 +17,10 @@
 Every component is a standard shadcn registry item:
 
 ```bash
-npx shadcn@latest add https://velora.dev/r/aurora-background.json
+npx shadcn@latest add https://velora.colorlib.com/r/aurora-background.json
 ```
 
-Components carry their own keyframes and brand tokens, so they work standalone in existing projects. Browse the full catalog at [velora.dev/components](https://velora.dev/components).
+Components carry their own keyframes and brand tokens, so they work standalone in existing projects. Browse the full catalog at [velora.colorlib.com/components](https://velora.colorlib.com/components).
 
 ### Use with AI agents
 
@@ -30,7 +30,7 @@ Velora is a standard shadcn registry, so it plugs into the shadcn MCP server wit
 pnpm dlx shadcn@latest mcp init --client claude
 ```
 
-For discovery, [llms.txt](https://velora.dev/llms.txt) lists every component with its install command, gzipped size and dependency count — so an agent can pick components by cost, not just by looks.
+For discovery, [llms.txt](https://velora.colorlib.com/llms.txt) lists every component with its install command, gzipped size and dependency count — so an agent can pick components by cost, not just by looks.
 
 ## Use the template
 
