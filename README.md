@@ -19,7 +19,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript&logoColor=white)
 
 <a href="https://velora.colorlib.com">
-  <img src=".github/screenshots/hero.png" alt="Velora UI — landing pages that feel alive" width="100%">
+  <img src=".github/screenshots/hero.webp" alt="Velora UI — landing pages that feel alive" width="100%">
 </a>
 
 </div>
@@ -29,21 +29,21 @@
 <table>
 <tr>
 <td width="50%" align="center">
-  <a href="https://velora.colorlib.com/components"><img src=".github/screenshots/components.png" alt="Component catalog — 32 animated components grouped by category"></a>
+  <a href="https://velora.colorlib.com/components"><img src=".github/screenshots/components.webp" alt="Component catalog — 32 animated components grouped by category"></a>
   <br><sub><b>Component catalog</b> — 32 components, grouped by category, one CLI command to install.</sub>
 </td>
 <td width="50%" align="center">
-  <a href="https://velora.colorlib.com/themes"><img src=".github/screenshots/themes.png" alt="Themes — rebrand from one token block"></a>
+  <a href="https://velora.colorlib.com/themes"><img src=".github/screenshots/themes.webp" alt="Themes — rebrand from one token block"></a>
   <br><sub><b>Themes</b> — swap the whole identity by editing seven CSS variables.</sub>
 </td>
 </tr>
 <tr>
 <td width="50%" align="center">
-  <a href="https://velora.colorlib.com/components/border-beam"><img src=".github/screenshots/component-page.png" alt="Component docs page with size, dependency and reduced-motion badges"></a>
+  <a href="https://velora.colorlib.com/components/border-beam"><img src=".github/screenshots/component-page.webp" alt="Component docs page with size, dependency and reduced-motion badges"></a>
   <br><sub><b>Every component ships its receipts</b> — gzip size, dependency count and reduced-motion status, plus live demo, install command and source.</sub>
 </td>
 <td width="50%" align="center">
-  <a href="https://velora.colorlib.com/pricing"><img src=".github/screenshots/pricing.png" alt="Pricing — the whole product is free"></a>
+  <a href="https://velora.colorlib.com/pricing"><img src=".github/screenshots/pricing.webp" alt="Pricing — the whole product is free"></a>
   <br><sub><b>The whole product is free</b> — every component and the complete template under MIT.</sub>
 </td>
 </tr>
