@@ -15,8 +15,8 @@
 ![Components](https://img.shields.io/badge/components-32-2563eb?style=flat-square)
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white)
-![Motion](https://img.shields.io/badge/Motion-12-ff0088?style=flat-square)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript&logoColor=white)
+![Motion](https://img.shields.io/badge/Motion-13-ff0088?style=flat-square)
+![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?style=flat-square&logo=typescript&logoColor=white)
 
 <a href="https://velora.colorlib.com">
   <img src=".github/screenshots/hero.webp" alt="Velora UI — landing pages that feel alive" width="100%">
@@ -136,6 +136,25 @@ pnpm registry:build   # component stats + registry.json + public/r/*.json + llms
 ## Stack
 
 Next.js 16 · React 19 · Tailwind CSS 4 · shadcn/ui · Motion · TypeScript
+
+### About the TypeScript setup
+
+TypeScript 7 is a native (Go) compiler that ships **only** a `tsc` binary — no `tsserver`
+and no JavaScript compiler API. Editors and `typescript-eslint` still need the API, so this
+repo installs both, which is the arrangement the TypeScript team documents:
+
+| Dependency | Resolves to | Used by |
+|------------|-------------|---------|
+| `typescript` | `@typescript/typescript6` (v6 API + `tsc6`) | editor language service, `typescript-eslint` |
+| `typescript-native` | `typescript` v7 (`tsc`) | `next build` type checking |
+
+`next build` runs the project-local `tsc`, so type checking uses the native compiler
+(~3× faster here), while your editor and `pnpm lint` keep working. Nothing in the
+component source depends on this — it is purely a toolchain detail.
+
+> Do not run `pnpm add -D typescript` in this repo: it replaces the aliased v6 package and
+> breaks linting. Collapse both entries back to a plain `typescript` dependency once
+> `typescript-eslint` supports TypeScript 7.1.
 
 ## License
 

@@ -2,6 +2,33 @@
 
 All notable changes to Velora UI. Also published at [/changelog](https://velora.colorlib.com/changelog).
 
+## 0.3.1 — 2026-09-05
+
+### Changed
+
+- Dependencies updated to latest across the board: Next.js 16.3.4, React 19.2.8, Motion 13.2.0,
+  TypeScript 7.0.2, `radix-ui` 1.6.7, `lucide-react` 1.41.0, `shiki` 4.4.3, `shadcn` 4.21.0,
+  `@next/mdx` 16.3.4, `@types/node` 26.4.1, `@types/react` 19.2.18, `@types/react-dom` 19.2.7
+- **Next.js 16.3** — Turbopack disk caching now covers `next build`, dev-server memory use drops
+  sharply, and `next build` type-checks through the project-local `tsc` CLI, which is what makes
+  TypeScript 7 usable here. No config or application changes were needed; every route still
+  prerenders under `output: "export"`
+- **TypeScript 7** — the native Go compiler. Type checking this project drops from ~1.57s to
+  ~0.54s. TypeScript 7 ships only a `tsc` binary (no `tsserver`, no JavaScript compiler API), so
+  the v6 API is installed alongside it for the editor language service and `typescript-eslint`:
+  `typescript` is aliased to `@typescript/typescript6`, and `typescript-native` carries v7. This
+  is the side-by-side arrangement the TypeScript team documents; see the README for details and
+  for the exit path once `typescript-eslint` supports 7.1
+- **Motion 13** — no source changes required. The only breaking change is the removal of
+  `@emotion/is-prop-valid` as an optional dependency, which affects CSS-in-JS users only
+
+### Not upgraded
+
+- **ESLint 10** — held at 9.39.5. `eslint-config-next` still depends on `eslint-plugin-react`,
+  `eslint-plugin-import` and `eslint-plugin-jsx-a11y`, none of which have published an
+  ESLint 10-compatible release; ESLint 10 fails at rule-load time, not just on peer warnings.
+  Revisit when those plugins ship ESLint 10 support
+
 ## 0.3.0 — 2026-07-16
 
 ### Added

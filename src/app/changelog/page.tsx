@@ -22,6 +22,18 @@ interface Release {
 
 const releases: Release[] = [
   {
+    date: "September 5, 2026",
+    version: "0.3.1",
+    title: "Next.js 16.3, TypeScript 7 and Motion 13",
+    tag: "Improved",
+    items: [
+      "Next.js 16.3: Turbopack disk caching for production builds and a much lighter dev server",
+      "TypeScript 7, the native compiler — type checking this project is about 3× faster",
+      "Motion 13 and React 19.2.8, with no changes needed in any component",
+      "Every other dependency refreshed to its latest release",
+    ],
+  },
+  {
     date: "July 16, 2026",
     version: "0.3.0",
     title: "Multi-page template, themes and performance receipts",
