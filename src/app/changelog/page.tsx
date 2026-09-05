@@ -23,6 +23,22 @@ interface Release {
 const releases: Release[] = [
   {
     date: "September 5, 2026",
+    version: "0.4.0",
+    title: "The catalogue doubles to 64 components",
+    tag: "New",
+    items: [
+      "Four new categories: Navigation, Forms, Social Proof and Scroll — each previously empty",
+      "Navigation: floating navbar, morphing navbar menu, dismissible sticky banner",
+      "Forms: vanish input, drag-and-drop file zone, multi-step stepper",
+      "Social proof: animated testimonials, tweet card and logo cloud — no API calls, no rate limits",
+      "Scroll: sticky scroll, container scroll, tracing beam, scroll velocity and parallax grid",
+      "Buttons expanded to seven, including a View Transitions theme toggler",
+      "Six more cards, four more text effects, three more backgrounds",
+      "Still 0.3–1.5 KB per component — and 33 of the 64 have zero runtime dependencies",
+    ],
+  },
+  {
+    date: "September 5, 2026",
     version: "0.3.1",
     title: "Next.js 16.3, TypeScript 7 and Motion 13",
     tag: "Improved",

@@ -19,6 +19,10 @@ export const categories = [
   "Text",
   "Buttons",
   "Cards & Layout",
+  "Navigation",
+  "Forms",
+  "Social Proof",
+  "Scroll",
   "Effects",
   "Mockups",
 ] as const;

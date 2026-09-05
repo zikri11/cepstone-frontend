@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { IntegrationsBeam } from "@/components/demo/integrations-beam";
+import { ThemeTogglerDemo } from "@/components/demo/theme-toggler-demo";
 import { AnimatedGradientText } from "@/components/velora/animated-gradient-text";
 import { AnimatedList } from "@/components/velora/animated-list";
 import { AnimatedTooltip } from "@/components/velora/animated-tooltip";
@@ -39,8 +40,60 @@ import { TextReveal } from "@/components/velora/text-reveal";
 import { TextShimmer } from "@/components/velora/text-shimmer";
 import { TiltCard } from "@/components/velora/tilt-card";
 import { Typewriter } from "@/components/velora/typewriter";
+import { AnimatedTestimonials } from "@/components/velora/animated-testimonials";
+import { CardStack } from "@/components/velora/card-stack";
+import { CompareSlider } from "@/components/velora/compare-slider";
+import { ContainerScroll } from "@/components/velora/container-scroll";
+import { DirectionAwareHover } from "@/components/velora/direction-aware-hover";
+import { ExpandableCard } from "@/components/velora/expandable-card";
+import { FileDrop } from "@/components/velora/file-drop";
+import { FileTree } from "@/components/velora/file-tree";
+import { FlickeringGrid } from "@/components/velora/flickering-grid";
+import { GlareCard } from "@/components/velora/glare-card";
+import { HyperText } from "@/components/velora/hyper-text";
+import { LightRays } from "@/components/velora/light-rays";
+import { LogoCloud } from "@/components/velora/logo-cloud";
+import { MagneticButton } from "@/components/velora/magnetic-button";
+import { MorphingText } from "@/components/velora/morphing-text";
+import { MovingBorder } from "@/components/velora/moving-border";
+import { MenuItem, NavbarMenu } from "@/components/velora/navbar-menu";
+import { ParallaxGrid } from "@/components/velora/parallax-grid";
+import { RainbowButton } from "@/components/velora/rainbow-button";
+import { Ripple } from "@/components/velora/ripple";
+import { RippleButton } from "@/components/velora/ripple-button";
+import { ScrollVelocity } from "@/components/velora/scroll-velocity";
+import { Stepper } from "@/components/velora/stepper";
+import { StickyBanner } from "@/components/velora/sticky-banner";
+import { TextHighlighter } from "@/components/velora/text-highlighter";
+import { TracingBeam } from "@/components/velora/tracing-beam";
+import { TweetCard } from "@/components/velora/tweet-card";
+import { VanishInput } from "@/components/velora/vanish-input";
+import { WordRotate } from "@/components/velora/word-rotate";
 
 const chips = ["Astro", "Next.js", "Remix", "Vite", "Nuxt", "SvelteKit"];
+
+const frame =
+  "flex h-full min-h-64 w-full items-center justify-center overflow-hidden rounded-lg";
+
+const quotes = [
+  {
+    quote:
+      "Swapped three separate animation libraries for Velora and the bundle got smaller.",
+    name: "Dana Whitfield",
+    role: "Staff engineer, Corvine",
+  },
+  {
+    quote:
+      "The size on every docs page is the reason we shipped it without a review meeting.",
+    name: "Marco Elias",
+    role: "Design engineer, Halyard",
+  },
+  {
+    quote: "Reduced-motion worked out of the box. That never happens.",
+    name: "Priya Raman",
+    role: "Accessibility lead, Northbeam",
+  },
+];
 
 export const componentDemos: Record<string, React.ReactNode> = {
   "aurora-background": (
@@ -296,5 +349,256 @@ export const componentDemos: Record<string, React.ReactNode> = {
         "✔ Created components/velora/marquee.tsx",
       ]}
     />
+  ),
+  // ── Backgrounds ──────────────────────────────────────────────────
+  "flickering-grid": (
+    <div className={`${frame} relative bg-neutral-950 text-white/70`}>
+      <FlickeringGrid columns={44} rows={16} />
+      <p className="relative text-xl font-semibold text-white">Flickering Grid</p>
+    </div>
+  ),
+  ripple: (
+    <div className={`${frame} relative`}>
+      <Ripple circles={5} baseSize={90} />
+      <p className="relative text-xl font-semibold">Ripple</p>
+    </div>
+  ),
+  "light-rays": (
+    <div className={`${frame} relative bg-neutral-950`}>
+      <LightRays count={7} />
+      <p className="relative text-xl font-semibold text-white">Light Rays</p>
+    </div>
+  ),
+
+  // ── Text ─────────────────────────────────────────────────────────
+  "word-rotate": (
+    <p className="text-2xl font-semibold">
+      Build{" "}
+      <WordRotate
+        words={["faster", "lighter", "calmer"]}
+        className="text-brand"
+      />
+    </p>
+  ),
+  "hyper-text": (
+    <HyperText className="text-2xl font-semibold">VELORA UI</HyperText>
+  ),
+  "text-highlighter": (
+    <p className="max-w-xs text-center text-lg">
+      Every component ships{" "}
+      <TextHighlighter>its own receipts</TextHighlighter>.
+    </p>
+  ),
+  "morphing-text": (
+    <div className="text-2xl font-semibold">
+      <MorphingText texts={["Animate", "Measure", "Ship"]} />
+    </div>
+  ),
+
+  // ── Buttons ──────────────────────────────────────────────────────
+  "rainbow-button": <RainbowButton>Get started</RainbowButton>,
+  "ripple-button": <RippleButton>Click me</RippleButton>,
+  "magnetic-button": <MagneticButton>Hover me</MagneticButton>,
+  "moving-border": <MovingBorder>Deploy</MovingBorder>,
+  "theme-toggler": <ThemeTogglerDemo />,
+
+  // ── Cards & Layout ───────────────────────────────────────────────
+  "card-stack": (
+    <CardStack
+      className="h-44 max-w-xs"
+      offset={10}
+      items={quotes.map((q) => ({
+        id: q.name,
+        content: (
+          <>
+            <p className="text-sm leading-relaxed">&ldquo;{q.quote}&rdquo;</p>
+            <p className="text-xs text-muted-foreground">{q.name}</p>
+          </>
+        ),
+      }))}
+    />
+  ),
+  "glare-card": (
+    <GlareCard className="w-full max-w-xs">
+      <h3 className="font-medium">Glare Card</h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Move the cursor across this card.
+      </p>
+    </GlareCard>
+  ),
+  "expandable-card": (
+    <ExpandableCard
+      title="Animations with receipts"
+      subtitle="Click to expand"
+      media={
+        <div className="h-24 w-full bg-gradient-to-br from-brand-from/30 to-brand-to/30" />
+      }
+    >
+      Every component publishes its gzipped size and dependency count.
+    </ExpandableCard>
+  ),
+  "direction-aware-hover": (
+    <DirectionAwareHover
+      className="size-44"
+      overlay={<span className="font-medium">Enters from your edge</span>}
+    >
+      <div className="flex size-full items-center justify-center bg-muted">
+        <span className="text-sm text-muted-foreground">Hover me</span>
+      </div>
+    </DirectionAwareHover>
+  ),
+  "compare-slider": (
+    <CompareSlider
+      className="max-w-sm"
+      before={
+        <div className="flex size-full items-center justify-center bg-neutral-900 text-sm text-white">
+          Before
+        </div>
+      }
+      after={
+        <div className="flex size-full items-center justify-center bg-gradient-to-br from-brand-from to-brand-to text-sm text-white">
+          After
+        </div>
+      }
+    />
+  ),
+  "file-tree": (
+    <FileTree
+      className="max-w-xs text-xs"
+      tree={[
+        {
+          name: "components",
+          children: [
+            {
+              name: "velora",
+              children: [{ name: "marquee.tsx" }, { name: "dock.tsx" }],
+            },
+            { name: "ui", children: [{ name: "button.tsx" }] },
+          ],
+        },
+      ]}
+    />
+  ),
+
+  // ── Navigation ───────────────────────────────────────────────────
+  "floating-navbar": (
+    <div className="w-full max-w-sm">
+      {/* Static preview — the real component is fixed to the viewport. */}
+      <div className="flex items-center justify-between gap-4 rounded-full border bg-background/80 px-5 py-2.5 shadow-lg backdrop-blur-md">
+        <span className="text-sm font-semibold">Velora</span>
+        <span className="text-sm text-muted-foreground">Docs</span>
+        <span className="text-sm text-muted-foreground">Pricing</span>
+      </div>
+      <p className="mt-3 text-center text-xs text-muted-foreground">
+        Hides on scroll down, returns on scroll up
+      </p>
+    </div>
+  ),
+  "navbar-menu": (
+    <NavbarMenu>
+      <MenuItem label="Product">
+        <p className="w-40 text-sm text-muted-foreground">Components, themes</p>
+      </MenuItem>
+      <MenuItem label="Docs" />
+      <MenuItem label="Pricing" />
+    </NavbarMenu>
+  ),
+  "sticky-banner": (
+    <div className="w-full max-w-sm overflow-hidden rounded-lg border">
+      <StickyBanner className="static">
+        <span className="text-sm">Velora 0.4 is out — 64 components</span>
+      </StickyBanner>
+      <div className="h-20 bg-muted/40" />
+    </div>
+  ),
+
+  // ── Forms ────────────────────────────────────────────────────────
+  "vanish-input": (
+    <VanishInput
+      className="max-w-xs"
+      placeholders={[
+        "Search components…",
+        "Try 'border beam'",
+        "Try 'bento grid'",
+      ]}
+    />
+  ),
+  "file-drop": <FileDrop className="max-w-xs" accept="image/*" />,
+  stepper: (
+    <Stepper className="max-w-xs" steps={["Account", "Plan", "Done"]} current={1} />
+  ),
+
+  // ── Social Proof ─────────────────────────────────────────────────
+  "animated-testimonials": (
+    <AnimatedTestimonials testimonials={quotes} className="max-w-sm" />
+  ),
+  "tweet-card": (
+    <TweetCard
+      name="Dana Whitfield"
+      handle="danawhit"
+      time="2h"
+      verified
+      content="Velora publishes the gzipped size of every component. Nobody else does this."
+    />
+  ),
+  "logo-cloud": (
+    <LogoCloud
+      className="max-w-sm grid-cols-3 gap-6 lg:grid-cols-3"
+      logos={chips.slice(0, 6).map((name) => ({
+        name,
+        logo: <span className="text-sm font-semibold">{name}</span>,
+      }))}
+    />
+  ),
+
+  // ── Scroll ───────────────────────────────────────────────────────
+  "sticky-scroll": (
+    <div className="w-full max-w-sm space-y-3">
+      <div className="flex gap-3">
+        <div className="flex-1 space-y-2">
+          <div className="h-2 w-full rounded bg-foreground/80" />
+          <div className="h-2 w-3/4 rounded bg-muted-foreground/30" />
+          <div className="h-2 w-2/3 rounded bg-muted-foreground/30" />
+        </div>
+        <div className="h-20 flex-1 rounded-lg border bg-gradient-to-br from-brand-from/15 to-brand-to/15" />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Copy scrolls; the panel stays pinned and swaps per section.
+      </p>
+    </div>
+  ),
+  "container-scroll": (
+    <ContainerScroll className="w-full max-w-xs">
+      <div className="flex h-28 items-center justify-center bg-gradient-to-br from-brand-from/20 to-brand-to/20 text-sm text-muted-foreground">
+        Your screenshot
+      </div>
+    </ContainerScroll>
+  ),
+  "tracing-beam": (
+    <TracingBeam className="max-w-xs pl-6">
+      <div className="space-y-2">
+        <div className="h-2 w-full rounded bg-muted-foreground/25" />
+        <div className="h-2 w-4/5 rounded bg-muted-foreground/25" />
+        <div className="h-2 w-3/5 rounded bg-muted-foreground/25" />
+        <p className="pt-2 text-xs text-muted-foreground">
+          The beam draws as you read.
+        </p>
+      </div>
+    </TracingBeam>
+  ),
+  "scroll-velocity": (
+    <ScrollVelocity className="text-2xl font-semibold text-muted-foreground">
+      Velora UI · Animations with receipts ·
+    </ScrollVelocity>
+  ),
+  "parallax-grid": (
+    <ParallaxGrid className="w-full max-w-xs gap-2">
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          className="h-14 rounded-lg bg-gradient-to-br from-brand-from/25 to-brand-to/25"
+        />
+      ))}
+    </ParallaxGrid>
   ),
 };

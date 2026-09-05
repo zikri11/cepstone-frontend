@@ -1,0 +1,38 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "text-highlighter",
+  "title": "Text Highlighter",
+  "description": "Marker-pen sweep that draws in when the phrase scrolls into view.",
+  "dependencies": [
+    "motion"
+  ],
+  "files": [
+    {
+      "path": "src/components/velora/text-highlighter.tsx",
+      "content": "\"use client\";\n\nimport { useRef } from \"react\";\nimport { motion, useInView, useReducedMotion } from \"motion/react\";\n\nimport { cn } from \"@/lib/utils\";\n\ninterface TextHighlighterProps {\n  children: React.ReactNode;\n  /** Any CSS colour; defaults to a translucent brand wash */\n  color?: string;\n  /** Seconds for the sweep */\n  duration?: number;\n  className?: string;\n}\n\n/**\n * Marker-pen sweep that draws behind the text when it scrolls into view.\n * Useful for the one phrase in a paragraph that has to land.\n */\nexport function TextHighlighter({\n  children,\n  color = \"color-mix(in oklch, var(--brand) 30%, transparent)\",\n  duration = 0.7,\n  className,\n}: TextHighlighterProps) {\n  const ref = useRef<HTMLSpanElement>(null);\n  const inView = useInView(ref, { once: true, amount: 0.6 });\n  const reducedMotion = useReducedMotion();\n\n  return (\n    <span\n      ref={ref}\n      data-slot=\"text-highlighter\"\n      className={cn(\"relative inline-block\", className)}\n    >\n      {/* Painted first so the text stacks above it without a negative\n          z-index, which would fall behind an ancestor's background. */}\n      <motion.span\n        aria-hidden\n        initial={{ scaleX: 0 }}\n        animate={inView ? { scaleX: 1 } : { scaleX: 0 }}\n        transition={{\n          duration: reducedMotion ? 0 : duration,\n          ease: [0.22, 1, 0.36, 1],\n        }}\n        style={{ background: color }}\n        className=\"absolute -inset-x-1 inset-y-0 origin-left rounded-sm\"\n      />\n      <span className=\"relative\">{children}</span>\n    </span>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "components/velora/text-highlighter.tsx"
+    }
+  ],
+  "cssVars": {
+    "theme": {
+      "color-brand": "var(--brand)",
+      "color-brand-from": "var(--brand-from)",
+      "color-brand-via": "var(--brand-via)",
+      "color-brand-to": "var(--brand-to)"
+    },
+    "light": {
+      "brand": "oklch(0.546 0.245 263)",
+      "brand-from": "oklch(0.546 0.245 263)",
+      "brand-via": "oklch(0.623 0.214 260)",
+      "brand-to": "oklch(0.685 0.169 237)"
+    },
+    "dark": {
+      "brand": "oklch(0.623 0.214 260)",
+      "brand-from": "oklch(0.623 0.214 260)",
+      "brand-via": "oklch(0.707 0.165 255)",
+      "brand-to": "oklch(0.746 0.16 233)"
+    }
+  },
+  "type": "registry:ui"
+}

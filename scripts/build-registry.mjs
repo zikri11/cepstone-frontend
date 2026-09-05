@@ -107,6 +107,36 @@ const keyframes = {
       to: { transform: "translateY(0)" },
     },
   },
+  rainbow: {
+    "@keyframes rainbow": {
+      from: { "background-position": "0% 50%" },
+      to: { "background-position": "200% 50%" },
+    },
+  },
+  ripple: {
+    "@keyframes ripple": {
+      from: { transform: "scale(0)", opacity: "0.35" },
+      to: { transform: "scale(1)", opacity: "0" },
+    },
+  },
+  movingBorder: {
+    "@keyframes moving-border": {
+      from: { "offset-distance": "0%" },
+      to: { "offset-distance": "100%" },
+    },
+  },
+  flicker: {
+    "@keyframes flicker": {
+      "0%, 100%": { opacity: "var(--flicker-max, 0.45)" },
+      "50%": { opacity: "var(--flicker-min, 0.08)" },
+    },
+  },
+  rippleRing: {
+    "@keyframes ripple-ring": {
+      from: { transform: "scale(0.6)", opacity: "0.5" },
+      to: { transform: "scale(2.2)", opacity: "0" },
+    },
+  },
 };
 
 // Per-slug extras: { css, cssVars } merged into the registry item.
@@ -173,6 +203,59 @@ const extras = {
   "sparkles-text": { cssVars: brandVars },
   lamp: { cssVars: brandVars },
   "spotlight-card": { cssVars: brandVars },
+
+  // ── added in 0.4.0 ─────────────────────────────────────────────
+  "rainbow-button": {
+    css: keyframes.rainbow,
+    cssVars: {
+      ...brandVars,
+      theme: {
+        ...brandVars.theme,
+        "animate-rainbow": "rainbow var(--rainbow-duration, 4s) linear infinite",
+      },
+    },
+  },
+  "ripple-button": {
+    css: keyframes.ripple,
+    cssVars: { theme: { "animate-ripple": "ripple 600ms ease-out forwards" } },
+  },
+  "moving-border": {
+    css: keyframes.movingBorder,
+    cssVars: {
+      ...brandVars,
+      theme: {
+        ...brandVars.theme,
+        "animate-moving-border":
+          "moving-border var(--mb-duration, 4s) linear infinite",
+      },
+    },
+  },
+  "flickering-grid": {
+    css: keyframes.flicker,
+    cssVars: { theme: { "animate-flicker": "flicker 3s steps(1, end) infinite" } },
+  },
+  ripple: {
+    css: keyframes.rippleRing,
+    cssVars: {
+      ...brandVars,
+      theme: {
+        ...brandVars.theme,
+        "animate-ripple-ring": "ripple-ring 3s ease-out infinite",
+      },
+    },
+  },
+  "light-rays": { cssVars: brandVars },
+  "sticky-banner": { cssVars: brandVars },
+  "animated-testimonials": { cssVars: brandVars },
+  "tweet-card": { cssVars: brandVars },
+  stepper: { cssVars: brandVars },
+  "text-highlighter": { cssVars: brandVars },
+  "glare-card": { cssVars: brandVars },
+  "direction-aware-hover": { cssVars: brandVars },
+  "container-scroll": { cssVars: brandVars },
+  "tracing-beam": { cssVars: brandVars },
+  "sticky-scroll": { cssVars: brandVars },
+  "file-drop": { cssVars: brandVars },
 };
 
 const items = meta.map((c) => ({

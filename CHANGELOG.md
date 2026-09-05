@@ -2,6 +2,33 @@
 
 All notable changes to Velora UI. Also published at [/changelog](https://velora.colorlib.com/changelog).
 
+## 0.4.0 — 2026-09-05
+
+### Added
+
+- **32 new components — the catalogue doubles to 64.** Four categories that were
+  previously empty now exist, which was the widest gap against Magic UI and Aceternity:
+  - **Navigation** — Floating Navbar (hides on scroll down, returns on scroll up),
+    Navbar Menu (morphing pill and panel), Sticky Banner
+  - **Forms** — Vanish Input, File Drop, Stepper
+  - **Social Proof** — Animated Testimonials, Tweet Card (props, not an API call), Logo Cloud
+  - **Scroll** — Sticky Scroll, Container Scroll, Tracing Beam, Scroll Velocity,
+    Parallax Grid (Scroll Progress moved into this category)
+- Buttons went from 2 to 7: Rainbow Button, Ripple Button, Magnetic Button, Moving Border,
+  and a Theme Toggler that wipes the new theme in with the View Transitions API
+- Cards & Layout gained Card Stack, Glare Card, Expandable Card, Direction Aware Hover,
+  Compare Slider and File Tree
+- Text gained Word Rotate, Hyper Text, Text Highlighter and Morphing Text
+- Backgrounds gained Flickering Grid, Ripple and Light Rays
+
+### Changed
+
+- The receipts still hold at double the size: every component is 0.3–1.5 KB gzipped, and
+  **33 of 64 now carry no runtime dependency** (previously 15 of 32). No WebGL, no Three.js —
+  deliberately, since a single 3D component would cost more than the entire catalogue
+- Every new component respects `prefers-reduced-motion`, either through the global CSS kill
+  switch or `useReducedMotion`, and none imports Radix or Base UI
+
 ## 0.3.1 — 2026-09-05
 
 ### Changed

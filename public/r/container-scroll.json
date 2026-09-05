@@ -1,0 +1,38 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "container-scroll",
+  "title": "Container Scroll",
+  "description": "Screenshot panel that rotates flat as it scrolls into view.",
+  "dependencies": [
+    "motion"
+  ],
+  "files": [
+    {
+      "path": "src/components/velora/container-scroll.tsx",
+      "content": "\"use client\";\n\nimport { useRef } from \"react\";\nimport { motion, useReducedMotion, useScroll, useTransform } from \"motion/react\";\n\nimport { cn } from \"@/lib/utils\";\n\ninterface ContainerScrollProps {\n  /** Headline area above the panel */\n  header?: React.ReactNode;\n  children: React.ReactNode;\n  className?: string;\n}\n\n/**\n * Screenshot panel that starts tilted back in 3D and rotates flat as it\n * scrolls into view — the standard \"here is the product\" hero moment.\n */\nexport function ContainerScroll({\n  header,\n  children,\n  className,\n}: ContainerScrollProps) {\n  const ref = useRef<HTMLDivElement>(null);\n  const reducedMotion = useReducedMotion();\n  const { scrollYProgress } = useScroll({\n    target: ref,\n    offset: [\"start end\", \"end start\"],\n  });\n\n  const rotateX = useTransform(scrollYProgress, [0, 0.45], [26, 0]);\n  const scale = useTransform(scrollYProgress, [0, 0.45], [0.92, 1]);\n  const translateY = useTransform(scrollYProgress, [0, 0.45], [40, 0]);\n\n  return (\n    <div\n      ref={ref}\n      data-slot=\"container-scroll\"\n      className={cn(\"flex flex-col items-center\", className)}\n    >\n      {header && (\n        <motion.div\n          style={reducedMotion ? undefined : { y: translateY }}\n          className=\"mb-10 text-center\"\n        >\n          {header}\n        </motion.div>\n      )}\n      <motion.div\n        style={\n          reducedMotion\n            ? undefined\n            : { rotateX, scale, transformPerspective: 1200 }\n        }\n        className=\"w-full origin-top rounded-2xl border bg-card p-2 shadow-2xl shadow-brand/10 will-change-transform\"\n      >\n        <div className=\"overflow-hidden rounded-xl border bg-muted\">\n          {children}\n        </div>\n      </motion.div>\n    </div>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "components/velora/container-scroll.tsx"
+    }
+  ],
+  "cssVars": {
+    "theme": {
+      "color-brand": "var(--brand)",
+      "color-brand-from": "var(--brand-from)",
+      "color-brand-via": "var(--brand-via)",
+      "color-brand-to": "var(--brand-to)"
+    },
+    "light": {
+      "brand": "oklch(0.546 0.245 263)",
+      "brand-from": "oklch(0.546 0.245 263)",
+      "brand-via": "oklch(0.623 0.214 260)",
+      "brand-to": "oklch(0.685 0.169 237)"
+    },
+    "dark": {
+      "brand": "oklch(0.623 0.214 260)",
+      "brand-from": "oklch(0.623 0.214 260)",
+      "brand-via": "oklch(0.707 0.165 255)",
+      "brand-to": "oklch(0.746 0.16 233)"
+    }
+  },
+  "type": "registry:ui"
+}

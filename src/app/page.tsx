@@ -118,7 +118,7 @@ const faqs = [
 ];
 
 const freeFeatures = [
-  "32+ animated components",
+  "64+ animated components",
   "Complete SaaS landing template",
   "Dark mode + full accessibility",
   "MIT license — commercial use OK",

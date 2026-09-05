@@ -1,0 +1,35 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "sticky-banner",
+  "title": "Sticky Banner",
+  "description": "Dismissible announcement bar pinned above the header.",
+  "files": [
+    {
+      "path": "src/components/velora/sticky-banner.tsx",
+      "content": "\"use client\";\n\nimport { useState } from \"react\";\n\nimport { cn } from \"@/lib/utils\";\n\ninterface StickyBannerProps extends React.HTMLAttributes<HTMLDivElement> {\n  /** Hide the dismiss button for banners that must stay put */\n  dismissible?: boolean;\n  /** Called after the banner is dismissed */\n  onDismiss?: () => void;\n  children: React.ReactNode;\n}\n\n/**\n * Announcement bar that pins to the top of the page and can be dismissed.\n * Sits above a sticky header when both are present.\n */\nexport function StickyBanner({\n  dismissible = true,\n  onDismiss,\n  children,\n  className,\n  ...props\n}: StickyBannerProps) {\n  const [open, setOpen] = useState(true);\n\n  if (!open) return null;\n\n  return (\n    <div\n      {...props}\n      data-slot=\"sticky-banner\"\n      className={cn(\n        \"sticky top-0 z-60 flex items-center justify-center gap-3 bg-gradient-to-r from-brand-from via-brand-via to-brand-to px-4 py-2.5 text-center text-sm text-brand-foreground\",\n        className\n      )}\n    >\n      <div className=\"flex-1\">{children}</div>\n      {dismissible && (\n        <button\n          type=\"button\"\n          aria-label=\"Dismiss announcement\"\n          onClick={() => {\n            setOpen(false);\n            onDismiss?.();\n          }}\n          className=\"-mr-1 shrink-0 rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current\"\n        >\n          <svg\n            width=\"14\"\n            height=\"14\"\n            viewBox=\"0 0 14 14\"\n            fill=\"none\"\n            stroke=\"currentColor\"\n            strokeWidth=\"1.75\"\n            strokeLinecap=\"round\"\n            aria-hidden\n          >\n            <path d=\"M3 3l8 8M11 3l-8 8\" />\n          </svg>\n        </button>\n      )}\n    </div>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "components/velora/sticky-banner.tsx"
+    }
+  ],
+  "cssVars": {
+    "theme": {
+      "color-brand": "var(--brand)",
+      "color-brand-from": "var(--brand-from)",
+      "color-brand-via": "var(--brand-via)",
+      "color-brand-to": "var(--brand-to)"
+    },
+    "light": {
+      "brand": "oklch(0.546 0.245 263)",
+      "brand-from": "oklch(0.546 0.245 263)",
+      "brand-via": "oklch(0.623 0.214 260)",
+      "brand-to": "oklch(0.685 0.169 237)"
+    },
+    "dark": {
+      "brand": "oklch(0.623 0.214 260)",
+      "brand-from": "oklch(0.623 0.214 260)",
+      "brand-via": "oklch(0.707 0.165 255)",
+      "brand-to": "oklch(0.746 0.16 233)"
+    }
+  },
+  "type": "registry:ui"
+}

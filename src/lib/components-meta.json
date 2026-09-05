@@ -98,7 +98,7 @@
   {
     "slug": "text-shimmer",
     "title": "Text Shimmer",
-    "description": "A soft light sweep — great for AI loading states.",
+    "description": "A soft light sweep \u2014 great for AI loading states.",
     "category": "Text",
     "dependencies": []
   },
@@ -153,7 +153,7 @@
   {
     "slug": "marquee",
     "title": "Marquee",
-    "description": "Seamless scrolling loop — horizontal, vertical, hover-pause.",
+    "description": "Seamless scrolling loop \u2014 horizontal, vertical, hover-pause.",
     "category": "Cards & Layout",
     "dependencies": []
   },
@@ -176,7 +176,7 @@
   {
     "slug": "avatar-circles",
     "title": "Avatar Circles",
-    "description": "Stacked initials avatars with a +N badge — zero images.",
+    "description": "Stacked initials avatars with a +N badge \u2014 zero images.",
     "category": "Cards & Layout",
     "dependencies": []
   },
@@ -219,7 +219,7 @@
   {
     "slug": "blur-fade",
     "title": "Blur Fade",
-    "description": "The workhorse entrance — blur, fade and drift into view.",
+    "description": "The workhorse entrance \u2014 blur, fade and drift into view.",
     "category": "Effects",
     "dependencies": [
       "motion"
@@ -229,7 +229,7 @@
     "slug": "scroll-progress",
     "title": "Scroll Progress",
     "description": "Gradient page-progress bar pinned to the top.",
-    "category": "Effects",
+    "category": "Scroll",
     "dependencies": [
       "motion"
     ]
@@ -244,7 +244,7 @@
   {
     "slug": "iphone-mockup",
     "title": "iPhone Mockup",
-    "description": "iPhone frame with dynamic island — pure CSS.",
+    "description": "iPhone frame with dynamic island \u2014 pure CSS.",
     "category": "Mockups",
     "dependencies": []
   },
@@ -253,6 +253,258 @@
     "title": "Terminal",
     "description": "A terminal window that types its lines in view.",
     "category": "Mockups",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "flickering-grid",
+    "title": "Flickering Grid",
+    "description": "Grid of squares fading in and out on staggered timers.",
+    "category": "Backgrounds",
+    "dependencies": []
+  },
+  {
+    "slug": "ripple",
+    "title": "Ripple",
+    "description": "Concentric rings pulsing outward \u2014 calm 'listening' backdrop.",
+    "category": "Backgrounds",
+    "dependencies": []
+  },
+  {
+    "slug": "light-rays",
+    "title": "Light Rays",
+    "description": "God rays fanning down from the top of a section.",
+    "category": "Backgrounds",
+    "dependencies": []
+  },
+  {
+    "slug": "word-rotate",
+    "title": "Word Rotate",
+    "description": "Swaps a single word on a quiet vertical roll.",
+    "category": "Text",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "hyper-text",
+    "title": "Hyper Text",
+    "description": "Scrambles through letters and resolves into the real text.",
+    "category": "Text",
+    "dependencies": []
+  },
+  {
+    "slug": "text-highlighter",
+    "title": "Text Highlighter",
+    "description": "Marker-pen sweep that draws in when the phrase scrolls into view.",
+    "category": "Text",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "morphing-text",
+    "title": "Morphing Text",
+    "description": "Blurs one phrase out as the next resolves in.",
+    "category": "Text",
+    "dependencies": []
+  },
+  {
+    "slug": "rainbow-button",
+    "title": "Rainbow Button",
+    "description": "CTA cycling the brand ramp, with a matching glow beneath.",
+    "category": "Buttons",
+    "dependencies": []
+  },
+  {
+    "slug": "ripple-button",
+    "title": "Ripple Button",
+    "description": "Expands a ripple from the exact point you pressed.",
+    "category": "Buttons",
+    "dependencies": []
+  },
+  {
+    "slug": "magnetic-button",
+    "title": "Magnetic Button",
+    "description": "Leans toward the cursor and springs back on leave.",
+    "category": "Buttons",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "moving-border",
+    "title": "Moving Border",
+    "description": "A light laps the button's border via offset-path.",
+    "category": "Buttons",
+    "dependencies": []
+  },
+  {
+    "slug": "theme-toggler",
+    "title": "Theme Toggler",
+    "description": "Wipes the new theme in as a circle using View Transitions.",
+    "category": "Buttons",
+    "dependencies": []
+  },
+  {
+    "slug": "card-stack",
+    "title": "Card Stack",
+    "description": "Deck that shuffles the top card to the back on a timer.",
+    "category": "Cards & Layout",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "glare-card",
+    "title": "Glare Card",
+    "description": "Sheet of light tracking the cursor, like a foil trading card.",
+    "category": "Cards & Layout",
+    "dependencies": []
+  },
+  {
+    "slug": "expandable-card",
+    "title": "Expandable Card",
+    "description": "Expands into a centred panel with shared-layout transitions.",
+    "category": "Cards & Layout",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "direction-aware-hover",
+    "title": "Direction Aware Hover",
+    "description": "Overlay enters from the edge the cursor actually crossed.",
+    "category": "Cards & Layout",
+    "dependencies": []
+  },
+  {
+    "slug": "compare-slider",
+    "title": "Compare Slider",
+    "description": "Before/after wipe with a keyboard-accessible divider.",
+    "category": "Cards & Layout",
+    "dependencies": []
+  },
+  {
+    "slug": "file-tree",
+    "title": "File Tree",
+    "description": "Collapsible tree for documenting project structure.",
+    "category": "Cards & Layout",
+    "dependencies": []
+  },
+  {
+    "slug": "floating-navbar",
+    "title": "Floating Navbar",
+    "description": "Hides on scroll down, returns the moment you scroll up.",
+    "category": "Navigation",
+    "dependencies": []
+  },
+  {
+    "slug": "navbar-menu",
+    "title": "Navbar Menu",
+    "description": "Hover-driven menu whose pill and panel morph between items.",
+    "category": "Navigation",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "sticky-banner",
+    "title": "Sticky Banner",
+    "description": "Dismissible announcement bar pinned above the header.",
+    "category": "Navigation",
+    "dependencies": []
+  },
+  {
+    "slug": "vanish-input",
+    "title": "Vanish Input",
+    "description": "Search field whose placeholder cycles while empty.",
+    "category": "Forms",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "file-drop",
+    "title": "File Drop",
+    "description": "Upload zone that lifts and glows while a file is over it.",
+    "category": "Forms",
+    "dependencies": []
+  },
+  {
+    "slug": "stepper",
+    "title": "Stepper",
+    "description": "Progress indicator for multi-step forms and checkouts.",
+    "category": "Forms",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "animated-testimonials",
+    "title": "Animated Testimonials",
+    "description": "Crossfades portraits behind a rotating quote.",
+    "category": "Social Proof",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "tweet-card",
+    "title": "Tweet Card",
+    "description": "Static social-proof card \u2014 props, not an API call.",
+    "category": "Social Proof",
+    "dependencies": []
+  },
+  {
+    "slug": "logo-cloud",
+    "title": "Logo Cloud",
+    "description": "Customer logos muted until hovered, so they read as texture.",
+    "category": "Social Proof",
+    "dependencies": []
+  },
+  {
+    "slug": "sticky-scroll",
+    "title": "Sticky Scroll",
+    "description": "Copy scrolls past a pinned panel that swaps per section.",
+    "category": "Scroll",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "container-scroll",
+    "title": "Container Scroll",
+    "description": "Screenshot panel that rotates flat as it scrolls into view.",
+    "category": "Scroll",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "tracing-beam",
+    "title": "Tracing Beam",
+    "description": "Gradient line that draws itself down long-form content.",
+    "category": "Scroll",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "scroll-velocity",
+    "title": "Scroll Velocity",
+    "description": "Marquee whose speed and direction follow your scrolling.",
+    "category": "Scroll",
+    "dependencies": [
+      "motion"
+    ]
+  },
+  {
+    "slug": "parallax-grid",
+    "title": "Parallax Grid",
+    "description": "Gallery columns drifting at different rates for depth.",
+    "category": "Scroll",
     "dependencies": [
       "motion"
     ]

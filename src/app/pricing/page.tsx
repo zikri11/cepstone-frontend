@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 const freeFeatures = [
-  "32+ animated components",
+  "64+ animated components",
   "Complete multi-page SaaS template",
   "Blog, auth, changelog & contact pages",
   "Dark mode + full accessibility",
@@ -47,7 +47,7 @@ const comparison: {
   free: boolean | string;
   pro: boolean | string;
 }[] = [
-  { feature: "Animated components", free: "32+", pro: "All + variants" },
+  { feature: "Animated components", free: "64+", pro: "All + variants" },
   { feature: "SaaS landing template", free: true, pro: true },
   { feature: "Blog, auth & changelog pages", free: true, pro: true },
   { feature: "Niche templates (AI, dev tool, mobile…)", free: false, pro: "5+" },

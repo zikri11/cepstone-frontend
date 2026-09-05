@@ -1,0 +1,35 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "light-rays",
+  "title": "Light Rays",
+  "description": "God rays fanning down from the top of a section.",
+  "files": [
+    {
+      "path": "src/components/velora/light-rays.tsx",
+      "content": "import { cn } from \"@/lib/utils\";\n\ninterface LightRaysProps {\n  /** Number of rays fanning out from the origin */\n  count?: number;\n  /** Total spread of the fan, in degrees */\n  spread?: number;\n  className?: string;\n}\n\n/**\n * God rays fanning down from the top of a section. Pure CSS gradients on\n * skewed elements — nothing paints per frame.\n */\nexport function LightRays({\n  count = 9,\n  spread = 70,\n  className,\n}: LightRaysProps) {\n  return (\n    <div\n      aria-hidden\n      data-slot=\"light-rays\"\n      className={cn(\n        \"pointer-events-none absolute inset-0 overflow-hidden [mask-image:linear-gradient(to_bottom,black,transparent_80%)]\",\n        className\n      )}\n    >\n      {Array.from({ length: count }).map((_, i) => {\n        // Fan the rays evenly around vertical.\n        const angle = -spread / 2 + (spread / (count - 1)) * i;\n        return (\n          <span\n            key={i}\n            style={{\n              transform: `rotate(${angle}deg)`,\n              opacity: 0.5 - Math.abs(angle) / (spread * 2.4),\n            }}\n            className=\"absolute -top-1/4 left-1/2 h-[150%] w-16 origin-top -translate-x-1/2 bg-[linear-gradient(to_bottom,var(--brand-via),transparent_70%)] blur-xl\"\n          />\n        );\n      })}\n    </div>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "components/velora/light-rays.tsx"
+    }
+  ],
+  "cssVars": {
+    "theme": {
+      "color-brand": "var(--brand)",
+      "color-brand-from": "var(--brand-from)",
+      "color-brand-via": "var(--brand-via)",
+      "color-brand-to": "var(--brand-to)"
+    },
+    "light": {
+      "brand": "oklch(0.546 0.245 263)",
+      "brand-from": "oklch(0.546 0.245 263)",
+      "brand-via": "oklch(0.623 0.214 260)",
+      "brand-to": "oklch(0.685 0.169 237)"
+    },
+    "dark": {
+      "brand": "oklch(0.623 0.214 260)",
+      "brand-from": "oklch(0.623 0.214 260)",
+      "brand-via": "oklch(0.707 0.165 255)",
+      "brand-to": "oklch(0.746 0.16 233)"
+    }
+  },
+  "type": "registry:ui"
+}

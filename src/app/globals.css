@@ -61,6 +61,11 @@
   --animate-aurora-3: aurora-3 22s ease-in-out infinite alternate;
   --animate-meteor: meteor 5s linear infinite;
   --animate-retro-grid: retro-grid 18s linear infinite;
+  --animate-rainbow: rainbow var(--rainbow-duration, 4s) linear infinite;
+  --animate-ripple: ripple 600ms ease-out forwards;
+  --animate-moving-border: moving-border var(--mb-duration, 4s) linear infinite;
+  --animate-flicker: flicker 3s steps(1, end) infinite;
+  --animate-ripple-ring: ripple-ring 3s ease-out infinite;
 }
 
 :root {
@@ -262,6 +267,56 @@
   }
 }
 
+@keyframes rainbow {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(0);
+    opacity: 0.35;
+  }
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes moving-border {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: var(--flicker-max, 0.45);
+  }
+  50% {
+    opacity: var(--flicker-min, 0.08);
+  }
+}
+
+@keyframes ripple-ring {
+  from {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-meteor,
   .animate-retro-grid,
@@ -272,7 +327,12 @@
   .animate-orbit,
   .animate-aurora-1,
   .animate-aurora-2,
-  .animate-aurora-3 {
+  .animate-aurora-3,
+  .animate-rainbow,
+  .animate-ripple,
+  .animate-moving-border,
+  .animate-flicker,
+  .animate-ripple-ring {
     animation: none;
   }
 }

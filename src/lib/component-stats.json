@@ -192,5 +192,193 @@
     "deps": [
       "motion/react"
     ]
+  },
+  "flickering-grid": {
+    "bytes": 1411,
+    "gzip": 731,
+    "deps": []
+  },
+  "ripple": {
+    "bytes": 1159,
+    "gzip": 630,
+    "deps": []
+  },
+  "light-rays": {
+    "bytes": 1272,
+    "gzip": 699,
+    "deps": []
+  },
+  "word-rotate": {
+    "bytes": 1507,
+    "gzip": 733,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "hyper-text": {
+    "bytes": 1844,
+    "gzip": 884,
+    "deps": []
+  },
+  "text-highlighter": {
+    "bytes": 1550,
+    "gzip": 804,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "morphing-text": {
+    "bytes": 1557,
+    "gzip": 771,
+    "deps": []
+  },
+  "rainbow-button": {
+    "bytes": 1660,
+    "gzip": 813,
+    "deps": []
+  },
+  "ripple-button": {
+    "bytes": 2652,
+    "gzip": 1182,
+    "deps": []
+  },
+  "magnetic-button": {
+    "bytes": 1950,
+    "gzip": 884,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "moving-border": {
+    "bytes": 1845,
+    "gzip": 879,
+    "deps": []
+  },
+  "theme-toggler": {
+    "bytes": 2743,
+    "gzip": 1267,
+    "deps": []
+  },
+  "card-stack": {
+    "bytes": 2101,
+    "gzip": 1031,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "glare-card": {
+    "bytes": 1667,
+    "gzip": 840,
+    "deps": []
+  },
+  "expandable-card": {
+    "bytes": 3782,
+    "gzip": 1279,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "direction-aware-hover": {
+    "bytes": 2200,
+    "gzip": 1023,
+    "deps": []
+  },
+  "compare-slider": {
+    "bytes": 2502,
+    "gzip": 1154,
+    "deps": []
+  },
+  "file-tree": {
+    "bytes": 2487,
+    "gzip": 1089,
+    "deps": []
+  },
+  "floating-navbar": {
+    "bytes": 1850,
+    "gzip": 930,
+    "deps": []
+  },
+  "navbar-menu": {
+    "bytes": 2741,
+    "gzip": 1054,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "sticky-banner": {
+    "bytes": 1793,
+    "gzip": 869,
+    "deps": []
+  },
+  "vanish-input": {
+    "bytes": 3237,
+    "gzip": 1417,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "file-drop": {
+    "bytes": 3462,
+    "gzip": 1433,
+    "deps": []
+  },
+  "stepper": {
+    "bytes": 2953,
+    "gzip": 1192,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "animated-testimonials": {
+    "bytes": 4079,
+    "gzip": 1508,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "tweet-card": {
+    "bytes": 2847,
+    "gzip": 1236,
+    "deps": []
+  },
+  "logo-cloud": {
+    "bytes": 1231,
+    "gzip": 653,
+    "deps": []
+  },
+  "sticky-scroll": {
+    "bytes": 2856,
+    "gzip": 1124,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "container-scroll": {
+    "bytes": 1738,
+    "gzip": 785,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "tracing-beam": {
+    "bytes": 1580,
+    "gzip": 811,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "scroll-velocity": {
+    "bytes": 1918,
+    "gzip": 907,
+    "deps": [
+      "motion/react"
+    ]
+  },
+  "parallax-grid": {
+    "bytes": 1544,
+    "gzip": 741,
+    "deps": [
+      "motion/react"
+    ]
   }
 }

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "ripple",
+  "title": "Ripple",
+  "description": "Concentric rings pulsing outward — calm 'listening' backdrop.",
+  "files": [
+    {
+      "path": "src/components/velora/ripple.tsx",
+      "content": "import { cn } from \"@/lib/utils\";\n\ninterface RippleProps {\n  /** Number of concentric rings */\n  circles?: number;\n  /** Diameter of the innermost ring, in px */\n  baseSize?: number;\n  className?: string;\n}\n\n/**\n * Concentric rings pulsing outward from the centre — a calm backdrop for\n * \"connected\" or \"listening\" states.\n */\nexport function Ripple({\n  circles = 6,\n  baseSize = 180,\n  className,\n}: RippleProps) {\n  return (\n    <div\n      aria-hidden\n      data-slot=\"ripple\"\n      className={cn(\n        \"pointer-events-none absolute inset-0 grid place-items-center overflow-hidden [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]\",\n        className\n      )}\n    >\n      {Array.from({ length: circles }).map((_, i) => {\n        const size = baseSize + i * 90;\n        return (\n          <span\n            key={i}\n            className=\"absolute animate-ripple-ring rounded-full border border-brand/25\"\n            style={{\n              width: size,\n              height: size,\n              animationDelay: `${i * 0.5}s`,\n              opacity: 1 - i / circles,\n            }}\n          />\n        );\n      })}\n    </div>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "components/velora/ripple.tsx"
+    }
+  ],
+  "cssVars": {
+    "theme": {
+      "color-brand": "var(--brand)",
+      "color-brand-from": "var(--brand-from)",
+      "color-brand-via": "var(--brand-via)",
+      "color-brand-to": "var(--brand-to)",
+      "animate-ripple-ring": "ripple-ring 3s ease-out infinite"
+    },
+    "light": {
+      "brand": "oklch(0.546 0.245 263)",
+      "brand-from": "oklch(0.546 0.245 263)",
+      "brand-via": "oklch(0.623 0.214 260)",
+      "brand-to": "oklch(0.685 0.169 237)"
+    },
+    "dark": {
+      "brand": "oklch(0.623 0.214 260)",
+      "brand-from": "oklch(0.623 0.214 260)",
+      "brand-via": "oklch(0.707 0.165 255)",
+      "brand-to": "oklch(0.746 0.16 233)"
+    }
+  },
+  "css": {
+    "@keyframes ripple-ring": {
+      "from": {
+        "transform": "scale(0.6)",
+        "opacity": "0.5"
+      },
+      "to": {
+        "transform": "scale(2.2)",
+        "opacity": "0"
+      }
+    }
+  },
+  "type": "registry:ui"
+}
