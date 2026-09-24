@@ -5,31 +5,29 @@ import { siteConfig } from "@/lib/site-config";
 
 const groups = [
   {
-    title: "Product",
+    title: "Navigasi",
     links: [
-      { text: "Components", href: "/components" },
-      { text: "Themes", href: "/themes" },
-      { text: "Pricing", href: "/pricing" },
-      { text: "Changelog", href: "/changelog" },
+      { text: "Beranda", href: "/" },
+      { text: "Alur Kerja", href: "#workflow" },
+      { text: "Metode & Fitur", href: "#features" },
+      { text: "Hasil Riset", href: "#evaluation" },
     ],
   },
   {
-    title: "Template pages",
+    title: "Modul Inti",
     links: [
-      { text: "Blog", href: "/blog" },
-      { text: "About", href: "/about" },
-      { text: "Contact", href: "/contact" },
-      { text: "Log in", href: "/login" },
-      { text: "Sign up", href: "/signup" },
-      { text: "404 page", href: "/404-demo" },
+      { text: "Proses Embedding", href: "#process" },
+      { text: "Proses Extraction", href: "#process" },
+      { text: "Analisis Inter-Frame", href: "#workflow" },
+      { text: "Evaluasi PSNR", href: "#evaluation" },
     ],
   },
   {
-    title: "Resources",
+    title: "Informasi",
     links: [
-      { text: "GitHub", href: siteConfig.github },
-      { text: "llms.txt", href: "/llms.txt" },
-      { text: "shadcn registry", href: "/components" },
+      { text: "Latar Belakang", href: "#about" },
+      { text: "FAQ Riset", href: "#faq" },
+      { text: "Repositori Proyek", href: siteConfig.github },
     ],
   },
 ];
@@ -39,17 +37,15 @@ export function SiteFooter() {
     <footer className="border-t border-border/40 py-14">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
         <div>
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <SparklesIcon className="size-5 text-primary" />
-            Velora UI
+          <Link href="/" className="font-semibold tracking-tight text-foreground">
+            StegoAnim 2D
           </Link>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-            Free, MIT-licensed animated components and complete landing
-            templates for React. Works with Base UI and Radix shadcn/ui
-            projects.
+            Penerapan Steganografi Video Animasi 2D Berbasis Inter-Frame Difference
+            untuk Komunikasi Data Aman.
           </p>
           <p className="mt-4 text-xs text-muted-foreground">
-            Built with Next.js 16, Tailwind CSS 4 &amp; Motion
+            Tugas Capstone Projek Teknik Informatika 2026
           </p>
         </div>
         {groups.map((group) => (
@@ -81,8 +77,8 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="mx-auto mt-12 flex max-w-6xl flex-col items-center justify-between gap-2 border-t border-border/40 px-4 pt-6 text-xs text-muted-foreground md:flex-row lg:px-8">
-        <span>Velora UI — MIT licensed, free forever.</span>
-        <span>Every animation respects prefers-reduced-motion.</span>
+        <span>StegoAnim 2D — Sistem Komunikasi Data Aman Berbasis Steganografi.</span>
+        <span>Inter-Frame Difference &amp; Least Significant Bit (LSB).</span>
       </div>
     </footer>
   );

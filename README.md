@@ -1,165 +1,146 @@
-<div align="center">
+# StegoAnim 2D — Frontend Capstone Project
 
-# Velora UI
+> **Penerapan Steganografi Video Animasi 2D Berbasis Inter-Frame Difference untuk Komunikasi Data Aman**  
+> *Tugas Capstone Projek Teknik Informatika • 2026*
 
-**Free, MIT-licensed animated components and complete landing templates for React.**
+[![Next.js](https://img.shields.io/badge/Next.js-16.3.4-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-Radix_Nova-000000?style=for-the-badge)](https://ui.shadcn.com/)
+[![ReUI Registry](https://img.shields.io/badge/ReUI-Registry_Components-2563eb?style=for-the-badge)](https://reui.io/)
 
-64 animated shadcn/ui components and a full multi-page SaaS template — home, pricing, blog (MDX), auth, changelog, contact and 404 — built with Next.js 16, Tailwind CSS 4 and Motion. The free tier isn't a teaser: everything on the site ships under MIT, commercial use included.
+---
 
-[![Live demo](https://img.shields.io/badge/Live_demo-velora.colorlib.com-2563eb?style=for-the-badge&logo=vercel&logoColor=white)](https://velora.colorlib.com)
-&nbsp;
-[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge)](./LICENSE)
-&nbsp;
-[![Stars](https://img.shields.io/github/stars/ColorlibHQ/velora-ui?style=for-the-badge&color=eab308)](https://github.com/ColorlibHQ/velora-ui/stargazers)
+## 📌 Deskripsi Proyek
 
-![Components](https://img.shields.io/badge/components-64-2563eb?style=flat-square)
-![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white)
-![Motion](https://img.shields.io/badge/Motion-13-ff0088?style=flat-square)
-![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?style=flat-square&logo=typescript&logoColor=white)
+Repository ini memuat antarmuka pengguna (*Frontend*) untuk sistem **Steganografi Video Animasi 2D** yang memanfaatkan karakteristik pergeseran piksel antar-frame (*Inter-Frame Difference*). 
 
-<a href="https://velora.colorlib.com">
-  <img src=".github/screenshots/hero.webp" alt="Velora UI — landing pages that feel alive" width="100%">
-</a>
+Dalam animasi 2D, terdapat area diam (*held frames*) dan area gerak dinamis bergaris kontur tegas (*line-art*). Dengan menyisipkan data rahasia hanya pada area dengan nilai selisih frame dinamis $\Delta(x,y,t) > \text{threshold}$, distorsi visual dapat diminimalkan hingga mata manusia tidak dapat melihat perbedaannya (*imperceptible*), dengan capaian nilai **PSNR > 45 dB** dan **SSIM > 0.99**.
 
-</div>
+---
 
-## Screenshots
+## ✨ Fitur Utama
 
-<table>
-<tr>
-<td width="50%" align="center">
-  <a href="https://velora.colorlib.com/components"><img src=".github/screenshots/components.webp" alt="Component catalog — 64 animated components grouped by category"></a>
-  <br><sub><b>Component catalog</b> — 64 components, grouped by category, one CLI command to install.</sub>
-</td>
-<td width="50%" align="center">
-  <a href="https://velora.colorlib.com/themes"><img src=".github/screenshots/themes.webp" alt="Themes — rebrand from one token block"></a>
-  <br><sub><b>Themes</b> — swap the whole identity by editing seven CSS variables.</sub>
-</td>
-</tr>
-<tr>
-<td width="50%" align="center">
-  <a href="https://velora.colorlib.com/components/border-beam"><img src=".github/screenshots/component-page.webp" alt="Component docs page with size, dependency and reduced-motion badges"></a>
-  <br><sub><b>Every component ships its receipts</b> — gzip size, dependency count and reduced-motion status, plus live demo, install command and source.</sub>
-</td>
-<td width="50%" align="center">
-  <a href="https://velora.colorlib.com/pricing"><img src=".github/screenshots/pricing.webp" alt="Pricing — the whole product is free"></a>
-  <br><sub><b>The whole product is free</b> — every component and the complete template under MIT.</sub>
-</td>
-</tr>
-</table>
+### 1. 🏠 Landing Page Komprehensif
+- **Hero & Value Proposition**: Menjelaskan konsep keamanan komunikasi data melalui media video animasi 2D.
+- **Workflow & Metodologi**: Visualisasi alur Inter-Frame Difference dari ekstraksi frame, enkripsi AES-256, hingga embedding LSB.
+- **Hasil Riset & FAQ**: Rangkuman pengujian matematis kualitas citra dan jawaban pertanyaan seputar riset.
 
-## Why Velora
+### 2. 🔐 Autentikasi Minimalis (Vercel Style)
+- Tampilan responsif satu layar (*single-screen viewport without vertical scroll*).
+- **Password Strength Indicator**: Indikator kekuatan kata sandi 2px minimalis dari ReUI yang hanya aktif pada halaman pendaftaran (`/signup`) dan dinonaktifkan pada halaman login (`/login`).
+- Integrasi tombol masuk dengan Google dan tautan langsung ke Workspace.
 
-- **The free tier is the whole product.** Complete assembled pages, not just isolated components. The kind of template that costs $149–$299 elsewhere is the baseline here.
-- **Animations with receipts.** Every component's docs page shows its gzipped size (0.3–1.5 KB — no Three.js payloads) and dependency count. 33 of 64 components have zero runtime dependencies; the rest use Motion and nothing else.
-- **Tokens, not hardcoded hues.** Components read your shadcn CSS variables. Rebrand every gradient, beam and glow by editing seven variables — ready-made presets on the [themes page](https://velora.colorlib.com/themes).
-- **Motion that asks permission.** A global `prefers-reduced-motion` kill switch covers every animation. Keyboard focus stays visible, markup stays semantic.
-- **Primitive-agnostic.** Velora components import neither Radix nor Base UI — they work in any shadcn project, whichever primitive layer you use.
+### 3. 📊 Dashboard Workspace (Tabbed Command Center)
+- **Tab 1: Ringkasan (Overview)**
+  - 4 Kartu KPI Utama Riset: Cover Video Diuji, Rata-rata PSNR (45.32 dB), Rata-rata SSIM (0.9918), Kapasitas Payload (142.8 KB).
+  - Grafik Kurva Evaluasi Citra Antar-Frame interaktif (SVG) dengan inspeksi hover per-frame.
+  - Linimasa aktivitas pemrosesan *real-time* berbasis komponen `@reui/timeline`.
+- **Tab 2: Studio Penyisipan (Embed)**
+  - Alur 4 langkah terstruktur berbasis `@reui/stepper`:
+    1. *Pilih Cover Video*: Preset video animasi (1080p/720p @ 24/30fps) & dropzone kustom.
+    2. *Data Rahasia & AES-256*: Input pesan teks/file dan kunci sandi stego.
+    3. *Parameter $\Delta$ Threshold*: Slider ambang batas selisih frame dan pilihan 1-bit / 2-bit LSB.
+    4. *Simulasi & Hasil*: Animasi progress frame-by-frame, skor aktual PSNR/SSIM, dan unduh stego video.
+- **Tab 3: Studio Ekstraksi (Extract)**
+  - Ekstraksi payload dari stego-video menggunakan kunci cipher.
+  - **Verifikasi Kriptografis SHA-256 Checksum**: Membuktikan integritas data 100% cocok (*Match / Valid*).
+  - Ekspor/unduh berkas teks hasil ekstraksi (`.txt`).
+- **Tab 4: Analisis Komparasi (Telemetry)**
+  - **Dual-Mode Visual Inspector**:
+    - *Side-by-Side*: Frame Asli vs Frame Stego berdampingan untuk menguji *imperceptibility*.
+    - *Difference Heatmap*: Visualisasi area pergeseran piksel $\Delta$ tempat bit disematkan.
+  - Slider penjelajah sequence 20 frame.
+  - Tabel telemetri frame-by-frame lengkap.
+  - **Ekspor Data**: Fitur unduh berkas CSV & JSON untuk lampiran laporan skripsi.
+- **Tab 5: Repositori Riwayat (History)**
+  - Manajemen seluruh video stego yang pernah diproses.
+  - Pencarian teks, filter status (*Semua, Stego Siap, Terekstraksi*), dan pengurutan (*Sort by PSNR / Payload*).
+  - Modal rincian metadata dan Signature Checksum.
 
-## What's inside
+---
 
-### 64 animated components
+## 🛠️ Tech Stack & Dependensi
 
-| Category | Components |
-|----------|-----------|
-| **Backgrounds** | Aurora Background · Grid & Dot Pattern · Retro Grid · Particles · Meteors · Background Beams · Lamp · Flickering Grid · Ripple · Light Rays |
-| **Text** | Animated Gradient Text · Text Reveal · Typewriter · Flip Words · Sparkles Text · Text Shimmer · Number Ticker · Word Rotate · Hyper Text · Text Highlighter · Morphing Text |
-| **Buttons** | Shimmer Button · Confetti · Rainbow Button · Ripple Button · Magnetic Button · Moving Border · Theme Toggler |
-| **Cards & Layout** | Bento Grid · Spotlight Card · Tilt Card · Marquee · Animated List · Orbiting Circles · Avatar Circles · Animated Tooltip · Dock · Card Stack · Glare Card · Expandable Card · Direction Aware Hover · Compare Slider · File Tree |
-| **Navigation** | Floating Navbar · Navbar Menu · Sticky Banner |
-| **Forms** | Vanish Input · File Drop · Stepper |
-| **Social Proof** | Animated Testimonials · Tweet Card · Logo Cloud |
-| **Scroll** | Scroll Progress · Sticky Scroll · Container Scroll · Tracing Beam · Scroll Velocity · Parallax Grid |
-| **Effects** | Border Beam · Animated Beam · Blur Fade |
-| **Mockups** | Browser Mockup · iPhone Mockup · Terminal |
+- **Core Framework**: [Next.js 16.3.4](https://nextjs.org/) (Turbopack, App Router)
+- **UI Library**: [React 19.2.8](https://react.dev/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Design Primitives**: [shadcn/ui](https://ui.shadcn.com/) (Radix-Nova Style)
+- **Advanced Components**: [ReUI Registry](https://reui.io/) (`@reui/stepper`, `@reui/timeline`, `password-input`)
+- **Animation**: [Motion v13](https://motion.dev/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Package Manager**: [pnpm](https://pnpm.io/)
 
-Browse them all — with live demos, props, install commands and source — at [velora.colorlib.com/components](https://velora.colorlib.com/components).
+---
 
-### The complete template
+## 🚀 Panduan Memulai (Getting Started)
 
-A production landing site, not a component sandbox. Every page is real, static-rendered and yours to keep:
+### Prasyarat
+- Node.js versi 20.x atau lebih baru
+- pnpm (`npm install -g pnpm`)
 
-| Page | What you get |
-|------|--------------|
-| [Home](https://velora.colorlib.com) | Animated hero, feature bento, social proof, marquee and CTA sections |
-| [Components](https://velora.colorlib.com/components) | Browsable gallery + a docs page per component (demo · props · install · source) |
-| [Themes](https://velora.colorlib.com/themes) | Six brand presets with live token switching |
-| [Pricing](https://velora.colorlib.com/pricing) | Free vs. Pro tiers with feature comparison |
-| [Blog](https://velora.colorlib.com/blog) | MDX-powered blog with three starter posts |
-| [Changelog](https://velora.colorlib.com/changelog) | Release timeline |
-| [About](https://velora.colorlib.com/about) · [Contact](https://velora.colorlib.com/contact) | Company page + frontend-only contact form |
-| [Login](https://velora.colorlib.com/login) · [Signup](https://velora.colorlib.com/signup) | Auth screens (frontend-only) |
-| 404 | Styled not-found page |
+### Instalasi
 
-## Install components
+1. **Clone Repository**:
+   ```bash
+   git clone https://github.com/zikri11/frontend-capstone.git
+   cd frontend-capstone
+   ```
 
-Every component is a standard shadcn registry item:
+2. **Instal Dependensi**:
+   ```bash
+   pnpm install
+   ```
 
-```bash
-npx shadcn@latest add https://velora.colorlib.com/r/aurora-background.json
+3. **Konfigurasi Environment (Opsional)**:
+   Salin `.env.example` menjadi `.env.local` jika ingin menambahkan lisensi ReUI:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+4. **Jalankan Server Development**:
+   ```bash
+   pnpm dev
+   ```
+
+5. Buka di browser:
+   - Landing Page: [http://localhost:3000](http://localhost:3000)
+   - Dashboard: [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
+   - Registrasi Akun: [http://localhost:3000/signup](http://localhost:3000/signup)
+   - Masuk Akun: [http://localhost:3000/login](http://localhost:3000/login)
+
+---
+
+## 📁 Struktur Direktori
+
+```text
+├── src/
+│   ├── app/
+│   │   ├── dashboard/        # Halaman Workspace Dashboard (5 Tab Command Center)
+│   │   ├── login/            # Halaman Masuk Akun
+│   │   ├── signup/           # Halaman Pendaftaran Akun
+│   │   ├── layout.tsx        # Layout Global Root & Theme Provider
+│   │   └── page.tsx          # Landing Page Utama
+│   ├── components/
+│   │   ├── dashboard/        # Komponen Dashboard Header & 5 Tab Views
+│   │   │   └── tabs/         # OverviewTab, EmbedTab, ExtractTab, TelemetryTab, HistoryTab
+│   │   ├── reui/             # Komponen Registry ReUI (Stepper, Timeline, Password Input)
+│   │   ├── template/         # Template Form Auth (Vercel-inspired Auth Form & Visual)
+│   │   └── ui/               # Komponen Dasar shadcn (Button, Card, Slider, Badge, Input, dll)
+│   ├── lib/
+│   │   ├── site-config.ts    # Konfigurasi Metadata Situs
+│   │   ├── stego-mock-data.ts# Dataset Simulasi Video Animasi 2D & Telemetri
+│   │   └── utils.ts          # Utility Class Merging (clsx + tailwind-merge)
+│   └── types/
+│       └── stego.ts          # Definisi Tipe TypeScript Steganografi
+├── components.json           # Konfigurasi shadcn & ReUI Registry
+├── package.json              # Definisi Paket & Script Proyek
+└── README.md                 # Dokumentasi Resmi Proyek
 ```
 
-Components carry their own keyframes and brand tokens, so they work standalone in existing projects. Browse the full catalog at [velora.colorlib.com/components](https://velora.colorlib.com/components).
+---
 
-### Use with AI agents
+## 📄 Lisensi
 
-Velora is a standard shadcn registry, so it plugs into the shadcn MCP server with zero extra setup — an agent in Cursor, Claude Code or VS Code can browse and install Velora components by name:
-
-```bash
-pnpm dlx shadcn@latest mcp init --client claude
-```
-
-For discovery, [llms.txt](https://velora.colorlib.com/llms.txt) lists every component with its install command, gzipped size and dependency count — so an agent can pick components by cost, not just by looks.
-
-## Use the template
-
-```bash
-git clone https://github.com/ColorlibHQ/velora-ui.git my-landing
-cd my-landing
-pnpm install
-pnpm dev
-```
-
-Then make it yours:
-
-1. **Content** — pages live in `src/app/`, section data is inline per page.
-2. **Brand** — swap the token block in `src/app/globals.css` (or copy a preset from `/themes`).
-3. **Blog** — add MDX files under `src/app/blog/(posts)/<slug>/page.mdx` and register them in `src/lib/blog-posts.ts`.
-4. **Forms** — contact and auth forms are frontend-only demos; wire them to your backend or auth provider.
-
-## Scripts
-
-```bash
-pnpm dev              # dev server (Turbopack)
-pnpm build            # production build (all pages static)
-pnpm lint             # eslint
-pnpm registry:build   # component stats + registry.json + public/r/*.json + llms.txt
-```
-
-## Stack
-
-Next.js 16 · React 19 · Tailwind CSS 4 · shadcn/ui · Motion · TypeScript
-
-### About the TypeScript setup
-
-TypeScript 7 is a native (Go) compiler that ships **only** a `tsc` binary — no `tsserver`
-and no JavaScript compiler API. Editors and `typescript-eslint` still need the API, so this
-repo installs both, which is the arrangement the TypeScript team documents:
-
-| Dependency | Resolves to | Used by |
-|------------|-------------|---------|
-| `typescript` | `@typescript/typescript6` (v6 API + `tsc6`) | editor language service, `typescript-eslint` |
-| `typescript-native` | `typescript` v7 (`tsc`) | `next build` type checking |
-
-`next build` runs the project-local `tsc`, so type checking uses the native compiler
-(~3× faster here), while your editor and `pnpm lint` keep working. Nothing in the
-component source depends on this — it is purely a toolchain detail.
-
-> Do not run `pnpm add -D typescript` in this repo: it replaces the aliased v6 package and
-> breaks linting. Collapse both entries back to a plain `typescript` dependency once
-> `typescript-eslint` supports TypeScript 7.1.
-
-## License
-
-[MIT](./LICENSE) — free for personal and commercial use, no attribution required.
+Dikembangkan sebagai bagian dari Tugas Capstone Projek Teknik Informatika • 2026.
+MIT License.

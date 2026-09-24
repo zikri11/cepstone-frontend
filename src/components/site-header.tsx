@@ -9,34 +9,37 @@ export function SiteHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <SparklesIcon className="size-5 text-primary" />
-          Velora UI
+        <Link href="/" className="font-semibold tracking-tight text-foreground">
+          StegoAnim 2D
         </Link>
         <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-          <Link href="/components" className="transition-colors hover:text-foreground">
-            Components
+          <Link href="#workflow" className="transition-colors hover:text-foreground">
+            Alur Kerja
           </Link>
-          <Link href="/themes" className="transition-colors hover:text-foreground">
-            Themes
+          <Link href="#features" className="transition-colors hover:text-foreground">
+            Metode &amp; Fitur
           </Link>
-          <Link href="/pricing" className="transition-colors hover:text-foreground">
-            Pricing
+          <Link href="#process" className="transition-colors hover:text-foreground">
+            Embedding &amp; Extraction
           </Link>
-          <Link href="/blog" className="transition-colors hover:text-foreground">
-            Blog
+          <Link href="#evaluation" className="transition-colors hover:text-foreground">
+            Hasil Riset
           </Link>
-          <Link href="/changelog" className="transition-colors hover:text-foreground">
-            Changelog
+          <Link href="#faq" className="transition-colors hover:text-foreground">
+            FAQ
           </Link>
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Button variant="outline" size="sm" asChild>
-            <a href={siteConfig.github} rel="noopener" target="_blank">
-              <StarIcon />
-              Star on GitHub
-            </a>
+          <Button size="sm" variant="ghost" asChild className="hidden sm:inline-flex text-xs">
+            <Link href="/dashboard">
+              Dashboard
+            </Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/signup">
+              Mulai Uji Coba
+            </Link>
           </Button>
         </div>
       </div>

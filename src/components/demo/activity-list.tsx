@@ -2,11 +2,11 @@
 
 import {
   CheckCircle2Icon,
-  DollarSignIcon,
-  MessageSquareIcon,
-  StarIcon,
-  TrendingUpIcon,
-  UserPlusIcon,
+  CpuIcon,
+  FileTextIcon,
+  LayersIcon,
+  ShieldCheckIcon,
+  ZapIcon,
 } from "lucide-react";
 
 import { AnimatedList } from "@/components/velora/animated-list";
@@ -14,46 +14,46 @@ import { cn } from "@/lib/utils";
 
 const notifications = [
   {
-    icon: DollarSignIcon,
-    tone: "bg-emerald-500/15 text-emerald-500",
-    title: "New sale",
-    description: "Velora Pro — Lifetime license",
-    time: "just now",
-  },
-  {
-    icon: UserPlusIcon,
+    icon: LayersIcon,
     tone: "bg-blue-500/15 text-blue-500",
-    title: "New signup",
-    description: "maya@studio.design joined",
-    time: "2m ago",
+    title: "Ekstraksi Frame Video",
+    description: "1,420 frame berhasil diekstrak dari video animasi",
+    time: "baru saja",
   },
   {
-    icon: StarIcon,
+    icon: CpuIcon,
     tone: "bg-amber-500/15 text-amber-500",
-    title: "GitHub star",
-    description: "velora-ui hit 2,400 stars",
-    time: "5m ago",
+    title: "Analisis Inter-Frame Difference",
+    description: "248 frame dinamis teridentifikasi (Threshold > 15.0)",
+    time: "2 dtk lalu",
   },
   {
-    icon: MessageSquareIcon,
-    tone: "bg-violet-500/15 text-violet-500",
-    title: "New review",
-    description: "“Best free template I've used”",
-    time: "12m ago",
+    icon: ZapIcon,
+    tone: "bg-emerald-500/15 text-emerald-500",
+    title: "Penyisipan Bit LSB",
+    description: "Pesan rahasia berhasil disisipkan ke bit LSB",
+    time: "4 dtk lalu",
   },
   {
-    icon: TrendingUpIcon,
-    tone: "bg-pink-500/15 text-pink-500",
-    title: "Traffic spike",
-    description: "+248% from Product Hunt",
-    time: "18m ago",
+    icon: ShieldCheckIcon,
+    tone: "bg-cyan-500/15 text-cyan-500",
+    title: "Uji Kualitas Visual (PSNR)",
+    description: "Nilai PSNR 54.8 dB — Perubahan tidak kasat mata",
+    time: "7 dtk lalu",
   },
   {
     icon: CheckCircle2Icon,
-    tone: "bg-cyan-500/15 text-cyan-500",
-    title: "Deploy succeeded",
-    description: "velora.dev — production",
-    time: "24m ago",
+    tone: "bg-violet-500/15 text-violet-500",
+    title: "Rekonstruksi Video Stego",
+    description: "Video stego siap diunduh (durasi & audio identik)",
+    time: "10 dtk lalu",
+  },
+  {
+    icon: FileTextIcon,
+    tone: "bg-emerald-500/15 text-emerald-500",
+    title: "Verifikasi Ekstraksi Pesan",
+    description: "Pesan teks asli berhasil diungkap 100% utuh",
+    time: "15 dtk lalu",
   },
 ];
 
