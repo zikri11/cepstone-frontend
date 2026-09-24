@@ -16,24 +16,23 @@ import { NumberTicker } from "@/components/velora/number-ticker";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { icon: LayoutDashboardIcon, label: "Overview", active: true },
-  { icon: BarChart3Icon, label: "Analytics" },
-  { icon: UsersIcon, label: "Customers" },
-  { icon: CreditCardIcon, label: "Billing" },
-  { icon: SettingsIcon, label: "Settings" },
+  { icon: LayoutDashboardIcon, label: "Frame Analyzer", active: true },
+  { icon: BarChart3Icon, label: "Inter-Frame Diff" },
+  { icon: UsersIcon, label: "LSB Embedding" },
+  { icon: CreditCardIcon, label: "Evaluasi PSNR" },
+  { icon: SettingsIcon, label: "Threshold Config" },
 ];
 
 const stats = [
-  { label: "Revenue", value: 48291, prefix: "$", change: "+12.4%" },
-  { label: "Active users", value: 12480, prefix: "", change: "+8.1%" },
-  { label: "Conversion", value: 4.6, prefix: "", change: "+0.9%", decimals: 1, suffix: "%" },
+  { label: "Total Frame Dianalisis", value: 1420, prefix: "", change: "100% Valid" },
+  { label: "Frame Terpilih (Diff > Th)", value: 248, prefix: "", change: "Dinamis" },
+  { label: "Rata-rata PSNR", value: 54.8, prefix: "", change: "Imperceptible", decimals: 1, suffix: " dB" },
 ];
 
 const bars = [38, 62, 48, 74, 56, 88, 66, 92, 60, 78, 84, 98];
 
 /**
- * Fake analytics dashboard inside a browser frame — pure markup,
- * no images. Gives the hero a product to look at.
+ * Steganography analysis dashboard mockup inside a browser frame.
  */
 export function HeroMockup({ className }: { className?: string }) {
   return (
@@ -44,7 +43,7 @@ export function HeroMockup({ className }: { className?: string }) {
         className="absolute -inset-8 rounded-[2rem] bg-gradient-to-r from-brand-from via-brand-via to-brand-to opacity-20 blur-3xl"
       />
 
-      <BrowserMockup url="velora.dev/dashboard" className="relative">
+      <BrowserMockup url="stegoanim2d.local/analyzer" className="relative">
         <BorderBeam size={96} duration={10} />
 
         <div className="flex">
@@ -69,9 +68,9 @@ export function HeroMockup({ className }: { className?: string }) {
           {/* Main */}
           <div className="flex-1 p-4 lg:p-6">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm font-semibold">Overview</span>
+              <span className="text-sm font-semibold">Visualisasi Inter-Frame Difference</span>
               <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-                Last 30 days
+                Ambang Batas (Threshold): 15.0
               </span>
             </div>
 
@@ -104,8 +103,8 @@ export function HeroMockup({ className }: { className?: string }) {
             {/* Bar chart */}
             <div className="mt-3 rounded-xl border border-border/60 bg-background/40 p-4">
               <div className="mb-3 flex items-center justify-between">
-                <span className="text-xs font-medium">Monthly revenue</span>
-                <span className="text-[11px] text-muted-foreground">2026</span>
+                <span className="text-xs font-medium">Perbedaan Visual Piksel Antar-Frame (Inter-Frame Delta)</span>
+                <span className="text-[11px] text-muted-foreground">Video Animasi 2D</span>
               </div>
               <div className="flex h-32 items-end gap-2 lg:h-40">
                 {bars.map((height, i) => (

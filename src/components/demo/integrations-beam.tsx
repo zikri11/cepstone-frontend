@@ -2,13 +2,13 @@
 
 import { useRef, type Ref } from "react";
 import {
-  BoxIcon,
-  CloudIcon,
-  CodeIcon,
-  DatabaseIcon,
-  MailIcon,
-  SparklesIcon,
-  WalletIcon,
+  CpuIcon,
+  FileTextIcon,
+  FilmIcon,
+  LayersIcon,
+  LockIcon,
+  ShieldCheckIcon,
+  VideoIcon,
 } from "lucide-react";
 
 import { AnimatedBeam } from "@/components/velora/animated-beam";
@@ -60,13 +60,13 @@ export function IntegrationsBeam({ className }: { className?: string }) {
     >
       <div className="flex h-full flex-col justify-between py-6">
         <Node ref={left1}>
-          <DatabaseIcon className="text-muted-foreground" />
+          <VideoIcon className="text-muted-foreground" />
         </Node>
         <Node ref={left2}>
-          <CodeIcon className="text-muted-foreground" />
+          <FileTextIcon className="text-muted-foreground" />
         </Node>
         <Node ref={left3}>
-          <CloudIcon className="text-muted-foreground" />
+          <CpuIcon className="text-muted-foreground" />
         </Node>
       </div>
 
@@ -74,18 +74,18 @@ export function IntegrationsBeam({ className }: { className?: string }) {
         ref={centerRef}
         className="size-18 border-primary/40 bg-primary/10 shadow-primary/20 [&_svg]:size-8"
       >
-        <SparklesIcon className="text-primary" />
+        <ShieldCheckIcon className="text-primary" />
       </Node>
 
       <div className="flex h-full flex-col justify-between py-6">
         <Node ref={right1}>
-          <MailIcon className="text-muted-foreground" />
+          <LayersIcon className="text-muted-foreground" />
         </Node>
         <Node ref={right2}>
-          <WalletIcon className="text-muted-foreground" />
+          <FilmIcon className="text-muted-foreground" />
         </Node>
         <Node ref={right3}>
-          <BoxIcon className="text-muted-foreground" />
+          <LockIcon className="text-muted-foreground" />
         </Node>
       </div>
 

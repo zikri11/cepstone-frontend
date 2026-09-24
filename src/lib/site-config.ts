@@ -4,14 +4,14 @@
  * repo are wired up.
  */
 export const siteConfig = {
-  name: "Velora UI",
+  name: "StegoAnim 2D",
   url: (
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://velora.colorlib.com"
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
   ).replace(/\/$/, ""),
   github:
     process.env.NEXT_PUBLIC_GITHUB_URL ??
     "https://github.com/ColorlibHQ/velora-ui",
-  tagline: "Free animated React components & landing templates",
+  tagline: "Steganografi Video Animasi 2D Berbasis Inter-Frame Difference",
   description:
-    "A free, MIT-licensed library of animated shadcn/ui components and complete landing page templates. Built with Next.js 16, Tailwind CSS 4 and Motion — accessible, reduced-motion friendly and tuned for perfect Lighthouse scores.",
+    "Aplikasi web penerapan steganografi video animasi 2D berbasis inter-frame difference dan LSB untuk komunikasi data aman.",
 } as const;
