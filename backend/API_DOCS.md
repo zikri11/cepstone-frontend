@@ -135,3 +135,53 @@ Mengecek status server backend.
     "message": "Backend is running"
   }
   ```
+
+---
+
+## 6. Register User
+Mendaftarkan akun baru. Password akan dienkripsi menggunakan bcrypt.
+
+- **URL:** `/auth/register`
+- **Method:** `POST`
+- **Body JSON:**
+  ```json
+  {
+    "username": "johndoe",
+    "email": "john@example.com",
+    "password": "secretpassword123"
+  }
+  ```
+- **Response Success (201):**
+  ```json
+  {
+    "message": "Registrasi berhasil",
+    "userId": "uuid-string"
+  }
+  ```
+
+---
+
+## 7. Login User
+Login untuk mendapatkan JWT (JSON Web Token).
+
+- **URL:** `/auth/login`
+- **Method:** `POST`
+- **Body JSON:**
+  ```json
+  {
+    "email": "john@example.com",
+    "password": "secretpassword123"
+  }
+  ```
+- **Response Success (200):**
+  ```json
+  {
+    "message": "Login berhasil",
+    "token": "eyJh...",
+    "user": {
+      "id": "uuid-string",
+      "username": "johndoe",
+      "email": "john@example.com"
+    }
+  }
+  ```
