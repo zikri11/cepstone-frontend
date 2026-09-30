@@ -1,4 +1,13 @@
--- 1. Tabel Utama: Projects
+-- 1. Tabel Auth: Users (Registrasi dan Login)
+CREATE TABLE users (
+    id VARCHAR(36) PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Tabel Utama: Projects
 CREATE TABLE projects (
     id VARCHAR(36) PRIMARY KEY, -- Menggunakan UUID string (36 karakter)
     user_id VARCHAR(36) NOT NULL,
@@ -9,13 +18,13 @@ CREATE TABLE projects (
     fps DECIMAL(5,2) NOT NULL,
     duration VARCHAR(50) NOT NULL, -- Contoh: "00:03:45"
     total_frames INT NOT NULL,
-    status ENUM('embedded', 'extracted', 'processing', 'ready') NOT NULL DEFAULT 'ready',
+    status VARCHAR(50) NOT NULL DEFAULT 'ready' CHECK (status IN ('embedded', 'extracted', 'processing', 'ready')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     thumbnail_color VARCHAR(50) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 2. Tabel 1-to-1: Metrics (Evaluasi Steganografi)
+-- 3. Tabel 1-to-1: Metrics (Evaluasi Steganografi)
 CREATE TABLE metrics (
     id VARCHAR(36) PRIMARY KEY,
     project_id VARCHAR(36) NOT NULL UNIQUE,
@@ -31,20 +40,20 @@ CREATE TABLE metrics (
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
--- 3. Tabel 1-to-1: Payloads (Data/Pesan yang disisipkan)
+-- 4. Tabel 1-to-1: Payloads (Data/Pesan yang disisipkan)
 CREATE TABLE payloads (
     id VARCHAR(36) PRIMARY KEY,
     project_id VARCHAR(36) NOT NULL UNIQUE,
-    type ENUM('text', 'file') NOT NULL,
+    type VARCHAR(50) NOT NULL CHECK (type IN ('text', 'file')),
     name VARCHAR(255) DEFAULT NULL,
     size_bytes INT NOT NULL,
-    content LONGTEXT NOT NULL, -- LONGTEXT karena bisa berisi Base64 string yang sangat panjang
+    content TEXT NOT NULL, -- TEXT di PostgreSQL cukup untuk data panjang seperti Base64
     secret_key VARCHAR(255) NOT NULL,
     
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
--- 4. Tabel 1-to-Many: Frame Metrics (Data deteksi pergerakan per frame)
+-- 5. Tabel 1-to-Many: Frame Metrics (Data deteksi pergerakan per frame)
 CREATE TABLE frame_metrics (
     id VARCHAR(36) PRIMARY KEY,
     project_id VARCHAR(36) NOT NULL,
@@ -60,25 +69,16 @@ CREATE TABLE frame_metrics (
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
--- 5. Tabel Independen: Activity Logs (Riwayat Audit / Logs)
+-- 6. Tabel Independen: Activity Logs (Riwayat Audit / Logs)
 CREATE TABLE activity_logs (
     id VARCHAR(36) PRIMARY KEY,
     user_id VARCHAR(36) NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    type ENUM('embed', 'extract', 'verify', 'export') NOT NULL,
+    type VARCHAR(50) NOT NULL CHECK (type IN ('embed', 'extract', 'verify', 'export')),
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    status ENUM('completed', 'in_progress', 'failed') NOT NULL,
+    status VARCHAR(50) NOT NULL CHECK (status IN ('completed', 'in_progress', 'failed')),
     badge_text VARCHAR(50) NOT NULL,
     metric_summary VARCHAR(255) DEFAULT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- 6. Tabel Auth: Users (Registrasi dan Login)
-CREATE TABLE users (
-    id VARCHAR(36) PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
