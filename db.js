@@ -1,14 +1,21 @@
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'stego_db',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+// Supabase Connection String format: postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false // Supabase requires SSL
+  }
 });
 
-module.exports = pool;
+module.exports = {
+  query: async (text, params) => {
+    // Translate MySQL '?' placeholders to PostgreSQL '$1, $2'
+    let i = 1;
+    const pgText = text.replace(/\?/g, () => `$${i++}`);
+    const res = await pool.query(pgText, params);
+    return [res.rows, res.fields];
+  },
+  pool
+};
