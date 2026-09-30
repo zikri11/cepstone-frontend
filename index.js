@@ -5,6 +5,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const db = require('./db');
+const multer = require('multer');
+const { spawn } = require('child_process');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -12,6 +15,17 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Increased limit for base64 payload
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use('/outputs', express.static(path.join(__dirname, 'outputs')));
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage: storage });
 
 // Helper function to map snake_case from DB to camelCase for Frontend
 const mapProjectToCamelCase = (row) => {
@@ -143,6 +157,134 @@ app.get('/api/activity-logs', async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
   }
+});
+
+// --- STEGO ROUTES ---
+
+app.post('/api/stego/embed', upload.single('video'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Video file is required' });
+  }
+  
+  const videoPath = req.file.path;
+  const { payload, threshold = 12, bitPlane = 1, secretKey } = req.body;
+  
+  if (!payload) {
+    return res.status(400).json({ error: 'Payload is required' });
+  }
+  
+  const pythonProcess = spawn('python', [
+    path.join(__dirname, 'engine', 'embed.py'),
+    videoPath,
+    payload,
+    threshold,
+    bitPlane,
+    path.join(__dirname, 'outputs')
+  ]);
+  
+  let outputData = '';
+  
+  pythonProcess.stdout.on('data', (data) => {
+    outputData += data.toString();
+  });
+  
+  pythonProcess.stderr.on('data', (data) => {
+    console.error(`Python Error: ${data}`);
+  });
+  
+  pythonProcess.on('close', async (code) => {
+    if (code !== 0) {
+      return res.status(500).json({ error: 'Steganography engine failed' });
+    }
+    
+    try {
+      // Find the first valid JSON string in output (in case python prints warnings)
+      const jsonStr = outputData.substring(outputData.indexOf('{'));
+      const result = JSON.parse(jsonStr);
+      
+      // Save to database
+      if (result.projectId) {
+        const projectId = result.projectId;
+        const metricId = crypto.randomUUID();
+        
+        await db.query(
+          'INSERT INTO projects (id, title, filename, file_size, resolution, fps, duration, total_frames, status, thumbnail_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+          [projectId, 'Stego Project', req.file.filename, req.file.size + ' B', result.resolution, result.fps, result.duration, result.totalFrames, 'embedded', '#000000']
+        );
+        
+        await db.query(
+          'INSERT INTO metrics (id, project_id, psnr, ssim, mse, payload_capacity_bpp, payload_size_bytes, integrity_valid, sha256_original, sha256_extracted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [metricId, projectId, result.metrics.psnr, result.metrics.ssim, result.metrics.mse, result.metrics.payloadCapacityBpp, result.metrics.payloadSizeBytes, result.metrics.integrityValid, result.metrics.sha256Original, result.metrics.sha256]
+        );
+        
+        const payloadId = crypto.randomUUID();
+        await db.query(
+          'INSERT INTO payloads (id, project_id, type, name, size_bytes, content, secret_key) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [payloadId, projectId, 'text', 'hidden_message.txt', result.metrics.payloadSizeBytes, payload, secretKey || '']
+        );
+        
+        // Also log activity
+        const logId = crypto.randomUUID();
+        await db.query(
+          'INSERT INTO activity_logs (id, type, title, description, status, badge_text, metric_summary) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [logId, 'embed', 'Penyisipan Pesan Selesai', `Menyisipkan pesan pada video ${req.file.filename}`, 'completed', 'Berhasil', `PSNR: ${result.metrics.psnr} dB`]
+        );
+      }
+      
+      res.json(result);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to process engine output' });
+    }
+  });
+});
+
+app.post('/api/stego/extract', upload.single('video'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Video file is required' });
+  }
+  
+  const videoPath = req.file.path;
+  const { threshold = 12, bitPlane = 1, secretKey } = req.body;
+  
+  const pythonProcess = spawn('python', [
+    path.join(__dirname, 'engine', 'extract.py'),
+    videoPath,
+    threshold,
+    bitPlane
+  ]);
+  
+  let outputData = '';
+  
+  pythonProcess.stdout.on('data', (data) => {
+    outputData += data.toString();
+  });
+  
+  pythonProcess.stderr.on('data', (data) => {
+    console.error(`Python Error: ${data}`);
+  });
+  
+  pythonProcess.on('close', async (code) => {
+    if (code !== 0) {
+      return res.status(500).json({ error: 'Extraction engine failed' });
+    }
+    
+    try {
+      const jsonStr = outputData.substring(outputData.indexOf('{'));
+      const result = JSON.parse(jsonStr);
+      
+      const logId = crypto.randomUUID();
+      await db.query(
+        'INSERT INTO activity_logs (id, type, title, description, status, badge_text, metric_summary) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [logId, 'extract', 'Ekstraksi Pesan Selesai', `Mengekstrak pesan dari video ${req.file.filename}`, 'completed', 'Berhasil', 'Valid']
+      );
+
+      res.json(result);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to process engine output' });
+    }
+  });
 });
 
 // --- AUTHENTICATION ROUTES ---
