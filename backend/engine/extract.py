@@ -59,11 +59,15 @@ def main():
                 if payload_length is None and len(extracted_bits) >= 32:
                     payload_length = int(extracted_bits[:32], 2)
                     
-                if payload_length is not None and len(extracted_bits) >= 32 + payload_length:
-                    break
+                if payload_length is not None:
+                    total_payload_bits = payload_length * 8
+                    if len(extracted_bits) >= 32 + total_payload_bits:
+                        break
         
-        if payload_length is not None and len(extracted_bits) >= 32 + payload_length:
-            break
+        if payload_length is not None:
+            total_payload_bits = payload_length * 8
+            if len(extracted_bits) >= 32 + total_payload_bits:
+                break
             
         prev_frame = frame
             
@@ -73,7 +77,8 @@ def main():
         print(json.dumps({"error": "Failed to extract payload length or no payload found."}))
         sys.exit(1)
         
-    payload_binary = extracted_bits[32:32+payload_length]
+    total_payload_bits = payload_length * 8
+    payload_binary = extracted_bits[32:32 + total_payload_bits]
     extracted_text = binary_to_string(payload_binary)
     
     sha256 = hashlib.sha256(open(video_path, 'rb').read()).hexdigest()

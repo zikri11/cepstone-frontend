@@ -8,9 +8,31 @@ const db = require('./db');
 const multer = require('multer');
 const { spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
+
+if (!fs.existsSync('uploads')) fs.mkdirSync('uploads', { recursive: true });
+if (!fs.existsSync('outputs')) fs.mkdirSync('outputs', { recursive: true });
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+// Middleware untuk memeriksa token JWT
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Format: Bearer <TOKEN>
+
+  if (!token) {
+    return res.status(401).json({ message: 'Akses ditolak: Token autentikasi tidak ditemukan' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET || 'rahasia-super-aman', (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Token tidak valid atau telah kedaluwarsa' });
+    }
+    req.user = user;
+    next();
+  });
+};
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Increased limit for base64 payload
@@ -31,6 +53,7 @@ const upload = multer({ storage: storage });
 const mapProjectToCamelCase = (row) => {
   return {
     id: row.id,
+    userId: row.user_id,
     title: row.title,
     filename: row.filename,
     fileSize: row.file_size,
@@ -70,9 +93,13 @@ const mapPayloadToCamelCase = (row) => {
 };
 
 // GET all projects
-app.get('/api/projects', async (req, res) => {
+app.get('/api/projects', authenticateToken, async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM projects ORDER BY created_at DESC');
+    const userId = req.user.id;
+    const [rows] = await db.query(
+      'SELECT * FROM projects WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
+    );
     const projects = rows.map(mapProjectToCamelCase);
     res.json(projects);
   } catch (error) {
@@ -82,13 +109,17 @@ app.get('/api/projects', async (req, res) => {
 });
 
 // GET specific project with all its details (metrics, payload)
-app.get('/api/projects/:id', async (req, res) => {
+app.get('/api/projects/:id', authenticateToken, async (req, res) => {
   try {
     const projectId = req.params.id;
-    const [projectRows] = await db.query('SELECT * FROM projects WHERE id = ?', [projectId]);
+    const userId = req.user.id;
+    const [projectRows] = await db.query(
+      'SELECT * FROM projects WHERE id = ? AND user_id = ?',
+      [projectId, userId]
+    );
     
     if (projectRows.length === 0) {
-      return res.status(404).json({ message: 'Project not found' });
+      return res.status(404).json({ message: 'Project not found or unauthorized' });
     }
     
     const project = mapProjectToCamelCase(projectRows[0]);
@@ -113,9 +144,17 @@ app.get('/api/projects/:id', async (req, res) => {
 });
 
 // GET frame metrics for a project
-app.get('/api/projects/:id/frames', async (req, res) => {
+app.get('/api/projects/:id/frames', authenticateToken, async (req, res) => {
   try {
     const projectId = req.params.id;
+    const userId = req.user.id;
+    
+    // Check if project belongs to user first
+    const [projectRows] = await db.query('SELECT id FROM projects WHERE id = ? AND user_id = ?', [projectId, userId]);
+    if (projectRows.length === 0) {
+      return res.status(404).json({ message: 'Project not found or unauthorized' });
+    }
+
     const [rows] = await db.query('SELECT * FROM frame_metrics WHERE project_id = ? ORDER BY frame_number ASC', [projectId]);
     
     const frames = rows.map(row => ({
@@ -137,9 +176,13 @@ app.get('/api/projects/:id/frames', async (req, res) => {
 });
 
 // GET activity logs
-app.get('/api/activity-logs', async (req, res) => {
+app.get('/api/activity-logs', authenticateToken, async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM activity_logs ORDER BY timestamp DESC LIMIT 20');
+    const userId = req.user.id;
+    const [rows] = await db.query(
+      'SELECT * FROM activity_logs WHERE user_id = ? ORDER BY timestamp DESC LIMIT 20',
+      [userId]
+    );
     
     const logs = rows.map(row => ({
       id: row.id,
@@ -161,11 +204,12 @@ app.get('/api/activity-logs', async (req, res) => {
 
 // --- STEGO ROUTES ---
 
-app.post('/api/stego/embed', upload.single('video'), async (req, res) => {
+app.post('/api/stego/embed', authenticateToken, upload.single('video'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'Video file is required' });
   }
   
+  const userId = req.user.id;
   const videoPath = req.file.path;
   const { payload, threshold = 12, bitPlane = 1, secretKey } = req.body;
   
@@ -207,9 +251,10 @@ app.post('/api/stego/embed', upload.single('video'), async (req, res) => {
         const projectId = result.projectId;
         const metricId = crypto.randomUUID();
         
+        // Simpan proyek dengan menyertakan user_id
         await db.query(
-          'INSERT INTO projects (id, title, filename, file_size, resolution, fps, duration, total_frames, status, thumbnail_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-          [projectId, 'Stego Project', req.file.filename, req.file.size + ' B', result.resolution, result.fps, result.duration, result.totalFrames, 'embedded', '#000000']
+          'INSERT INTO projects (id, user_id, title, filename, file_size, resolution, fps, duration, total_frames, status, thumbnail_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+          [projectId, userId, 'Stego Project', req.file.filename, req.file.size + ' B', result.resolution, result.fps, result.duration, result.totalFrames, 'embedded', '#000000']
         );
         
         await db.query(
@@ -223,11 +268,11 @@ app.post('/api/stego/embed', upload.single('video'), async (req, res) => {
           [payloadId, projectId, 'text', 'hidden_message.txt', result.metrics.payloadSizeBytes, payload, secretKey || '']
         );
         
-        // Also log activity
+        // Catat activity log milik user yang bersangkutan
         const logId = crypto.randomUUID();
         await db.query(
-          'INSERT INTO activity_logs (id, type, title, description, status, badge_text, metric_summary) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [logId, 'embed', 'Penyisipan Pesan Selesai', `Menyisipkan pesan pada video ${req.file.filename}`, 'completed', 'Berhasil', `PSNR: ${result.metrics.psnr} dB`]
+          'INSERT INTO activity_logs (id, user_id, type, title, description, status, badge_text, metric_summary) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [logId, userId, 'embed', 'Penyisipan Pesan Selesai', `Menyisipkan pesan pada video ${req.file.filename}`, 'completed', 'Berhasil', `PSNR: ${result.metrics.psnr} dB`]
         );
       }
       
@@ -239,11 +284,12 @@ app.post('/api/stego/embed', upload.single('video'), async (req, res) => {
   });
 });
 
-app.post('/api/stego/extract', upload.single('video'), (req, res) => {
+app.post('/api/stego/extract', authenticateToken, upload.single('video'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'Video file is required' });
   }
   
+  const userId = req.user.id;
   const videoPath = req.file.path;
   const { threshold = 12, bitPlane = 1, secretKey } = req.body;
   
@@ -275,8 +321,8 @@ app.post('/api/stego/extract', upload.single('video'), (req, res) => {
       
       const logId = crypto.randomUUID();
       await db.query(
-        'INSERT INTO activity_logs (id, type, title, description, status, badge_text, metric_summary) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [logId, 'extract', 'Ekstraksi Pesan Selesai', `Mengekstrak pesan dari video ${req.file.filename}`, 'completed', 'Berhasil', 'Valid']
+        'INSERT INTO activity_logs (id, user_id, type, title, description, status, badge_text, metric_summary) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [logId, userId, 'extract', 'Ekstraksi Pesan Selesai', `Mengekstrak pesan dari video ${req.file.filename}`, 'completed', 'Berhasil', 'Valid']
       );
 
       res.json(result);

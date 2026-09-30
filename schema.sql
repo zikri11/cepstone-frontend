@@ -1,6 +1,7 @@
 -- 1. Tabel Utama: Projects
 CREATE TABLE projects (
     id VARCHAR(36) PRIMARY KEY, -- Menggunakan UUID string (36 karakter)
+    user_id VARCHAR(36) NOT NULL,
     title VARCHAR(255) NOT NULL,
     filename VARCHAR(255) NOT NULL,
     file_size VARCHAR(50) NOT NULL, -- Contoh: "15.4 MB"
@@ -10,7 +11,8 @@ CREATE TABLE projects (
     total_frames INT NOT NULL,
     status ENUM('embedded', 'extracted', 'processing', 'ready') NOT NULL DEFAULT 'ready',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    thumbnail_color VARCHAR(50) NOT NULL
+    thumbnail_color VARCHAR(50) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 2. Tabel 1-to-1: Metrics (Evaluasi Steganografi)
@@ -61,13 +63,15 @@ CREATE TABLE frame_metrics (
 -- 5. Tabel Independen: Activity Logs (Riwayat Audit / Logs)
 CREATE TABLE activity_logs (
     id VARCHAR(36) PRIMARY KEY,
+    user_id VARCHAR(36) NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     type ENUM('embed', 'extract', 'verify', 'export') NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     status ENUM('completed', 'in_progress', 'failed') NOT NULL,
     badge_text VARCHAR(50) NOT NULL,
-    metric_summary VARCHAR(255) DEFAULT NULL
+    metric_summary VARCHAR(255) DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 6. Tabel Auth: Users (Registrasi dan Login)
