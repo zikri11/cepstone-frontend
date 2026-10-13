@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Local Environment
+.env
+.env*.local
+
+# Steganography Engine Outputs & Uploads
+uploads/
+outputs/
+data/
+
+# Logs & Debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# System
+.DS_Store
+Thumbs.db
