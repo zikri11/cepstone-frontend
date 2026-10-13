@@ -38,3 +38,7 @@ next-env.d.ts
 # generated files
 backend/uploads/
 backend/outputs/
+backend/data/
+uploads/
+outputs/
+data/
