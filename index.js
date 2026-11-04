@@ -19,13 +19,39 @@ if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 const app = express();
 const port = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia-super-aman';
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  console.warn('[Security Warning] JWT_SECRET is not set in production. Please configure JWT_SECRET in .env');
+}
+
+app.disable('x-powered-by');
+
+// Native Security Headers (ponytail: standard platform headers over helmet dependency)
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  next();
+});
+
+// Resolve Python command cross-platform (Windows vs Linux VPS/Docker)
+const getPythonCmd = () => {
+  if (process.env.PYTHON_PATH && fs.existsSync(process.env.PYTHON_PATH)) {
+    return process.env.PYTHON_PATH;
+  }
+  return process.platform === 'win32' ? 'python' : 'python3';
+};
 
 // Initialize Database (PostgreSQL if available or local persistent fallback)
 db.initDb().catch(err => console.error('[Database Init Error]:', err.message));
 
-// Middleware
+// Middleware: CORS (Configurable via CLIENT_ORIGIN)
+const clientOrigin = process.env.CLIENT_ORIGIN || '*';
 app.use(cors({
-  origin: '*',
+  origin: clientOrigin === '*' ? '*' : clientOrigin.split(',').map(s => s.trim()),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -36,20 +62,28 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/outputs', express.static(outputDir));
 app.use('/uploads', express.static(uploadDir));
 
-// Multer Storage Configuration
+// Multer Storage & Whitelist Validation
+const ALLOWED_VIDEO_EXTS = ['.mp4', '.avi', '.webm', '.mkv', '.mov'];
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + crypto.randomUUID().slice(0, 8);
-    const ext = path.extname(file.originalname);
+    const ext = path.extname(file.originalname).toLowerCase();
     cb(null, `${uniqueSuffix}${ext}`);
   }
 });
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 100 * 1024 * 1024 } // 100 MB max
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB max
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    if (!ALLOWED_VIDEO_EXTS.includes(ext)) {
+      return cb(new Error('Format berkas tidak diizinkan. Hanya video (.mp4, .avi, .webm, .mkv) yang didukung.'));
+    }
+    cb(null, true);
+  }
 });
 
 // Authentication Middleware
@@ -70,6 +104,46 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// RBAC Middleware: Require specific role
+const requireRole = (role) => (req, res, next) => {
+  if (!req.user || req.user.role !== role) {
+    return res.status(403).json({ message: `Akses ditolak: Memerlukan hak akses ${role}` });
+  }
+  next();
+};
+
+// ponytail: in-memory IP rate limiter, upgrade to redis store if multi-instance
+const createRateLimiter = (windowMs, maxAttempts, message) => {
+  const attempts = new Map();
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, val] of attempts.entries()) {
+      if (now > val.resetTime) attempts.delete(key);
+    }
+  }, 60 * 60 * 1000).unref();
+
+  return (req, res, next) => {
+    const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const now = Date.now();
+    const record = attempts.get(ip) || { count: 0, resetTime: now + windowMs };
+    if (now > record.resetTime) {
+      record.count = 0;
+      record.resetTime = now + windowMs;
+    }
+    record.count++;
+    attempts.set(ip, record);
+    if (record.count > maxAttempts) {
+      const waitSec = Math.ceil((record.resetTime - now) / 1000);
+      return res.status(429).json({ message: message || `Terlalu banyak permintaan. Coba lagi dalam ${waitSec} detik.` });
+    }
+    next();
+  };
+};
+
+const loginLimiter = createRateLimiter(15 * 60 * 1000, 10, 'Terlalu banyak percobaan masuk. Silakan coba lagi dalam 15 menit.');
+const registerLimiter = createRateLimiter(60 * 60 * 1000, 10, 'Batas pendaftaran tercapai untuk IP ini. Coba lagi dalam 1 jam.');
+const forgotPasswordLimiter = createRateLimiter(15 * 60 * 1000, 5, 'Terlalu banyak permintaan pemulihan kata sandi. Coba lagi dalam 15 menit.');
+
 // Data Mapping Helpers (Database snake_case -> Frontend camelCase)
 const mapProjectToCamelCase = (row) => {
   if (!row) return null;
@@ -83,6 +157,8 @@ const mapProjectToCamelCase = (row) => {
     fps: Number(row.fps) || 24,
     duration: row.duration,
     totalFrames: Number(row.total_frames) || 0,
+    threshold: Number(row.threshold) || 12,
+    bitPlane: Number(row.bit_plane) || 1,
     status: row.status,
     createdAt: row.created_at,
     thumbnailColor: row.thumbnail_color || 'from-blue-600/20 via-indigo-500/10 to-transparent',
@@ -148,6 +224,80 @@ const mapActivityLogToCamelCase = (row) => {
 // 1. HEALTH & SYSTEM STATUS
 // ==========================================
 
+// ==========================================
+// 1. HEALTH & SYSTEM STATUS
+// ==========================================
+
+// Brevo (Sendinblue) Transactional Email Sender
+const sendBrevoEmail = async ({ toEmail, toName, subject, htmlContent }) => {
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || 'naril4860@gmail.com';
+  const senderName = process.env.BREVO_SENDER_NAME || 'StegoAnim 2D';
+
+  if (!apiKey) {
+    console.warn(`[Brevo Warning] BREVO_API_KEY tidak dikonfigurasi. Kode OTP dikirim ke log konsol.`);
+    return { success: false, reason: 'NO_API_KEY' };
+  }
+
+  try {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': apiKey,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: { name: senderName, email: senderEmail },
+        to: [{ email: toEmail, name: toName || toEmail }],
+        subject,
+        htmlContent
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      console.warn(`[Brevo Email Error] HTTP ${res.status}:`, JSON.stringify(data));
+      return { success: false, error: data.message || 'Gagal mengirim email via Brevo' };
+    }
+    console.log(`[Brevo Email Sent] Berhasil mengirim email ke ${toEmail} (ID: ${data.messageId})`);
+    return { success: true, messageId: data.messageId };
+  } catch (err) {
+    console.error('[Brevo Network Error]:', err.message);
+    return { success: false, error: err.message };
+  }
+};
+
+const getOtpEmailTemplate = ({ title, subtitle, code, actionText, warningText }) => {
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+  </head>
+  <body style="margin: 0; padding: 24px; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+    <div style="max-width: 480px; margin: 0 auto; padding: 20px 0; border-bottom: 1px solid #e2e8f0;">
+      <h2 style="margin: 0 0 12px; font-size: 20px; font-weight: 700; color: #0f172a;">${title}</h2>
+      <p style="margin: 0 0 16px; font-size: 14px; color: #334155;">${subtitle}</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 24px; text-align: center; margin: 20px 0;">
+        <span style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin-bottom: 6px;">Kode Verifikasi (OTP)</span>
+        <span style="font-family: Consolas, 'Courier New', monospace; font-size: 32px; font-weight: 700; letter-spacing: 8px; color: #1e293b; display: inline-block;">${code}</span>
+      </div>
+
+      <p style="margin: 0 0 12px; font-size: 13px; color: #334155;">${actionText}</p>
+      <p style="margin: 0; font-size: 12px; color: #64748b;">${warningText || 'Kode ini berlaku selama 15 menit. Mohon tidak membagikan kode ini kepada siapa pun.'}</p>
+    </div>
+    <div style="max-width: 480px; margin: 0 auto; padding-top: 14px; font-size: 12px; color: #94a3b8;">
+      <p style="margin: 0;">StegoAnim 2D &bull; Universitas Siliwangi</p>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
 app.get(['/health', '/api/health'], (req, res) => {
   res.json({
     status: 'ok',
@@ -164,7 +314,7 @@ app.get(['/health', '/api/health'], (req, res) => {
 // ==========================================
 
 // Register
-app.post('/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', registerLimiter, async (req, res) => {
   try {
     const { username, email, password } = req.body;
     if (!username || !email || !password) {
@@ -180,42 +330,81 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ message: 'Format alamat email tidak valid' });
     }
 
+    const normalizedEmail = email.toLowerCase().trim();
+
     const [existing] = await db.query(
-      'SELECT id FROM users WHERE email = ? OR username = ?',
-      [email.toLowerCase(), username]
+      'SELECT id, is_verified FROM users WHERE email = ? OR username = ?',
+      [normalizedEmail, username]
     );
 
     if (existing && existing.length > 0) {
+      // If user exists but is not verified, allow re-sending OTP
+      if (existing[0].is_verified === false || existing[0].is_verified === 0) {
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+        await db.query(
+          'UPDATE users SET verification_code = ?, verification_expires = ? WHERE id = ?',
+          [otpCode, expiresAt, existing[0].id]
+        );
+
+        console.log(`\n========================================\n[KODE OTP REGISTRASI] Email: ${normalizedEmail}\nKode Verifikasi: ${otpCode}\n========================================\n`);
+
+        await sendBrevoEmail({
+          toEmail: normalizedEmail,
+          toName: username,
+          subject: `${otpCode} adalah Kode Verifikasi Akun StegoAnim 2D Anda`,
+          htmlContent: getOtpEmailTemplate({
+            title: 'Verifikasi Akun Baru',
+            subtitle: `Halo <strong>${username}</strong>, terima kasih telah mendaftar di sistem StegoAnim 2D. Silakan masukkan kode berikut untuk mengaktifkan akun Anda.`,
+            code: otpCode,
+            actionText: 'Masukkan 6-digit kode verifikasi di atas pada layar pendaftaran aplikasi StegoAnim 2D.',
+            warningText: 'Kode ini bersifat rahasia dan akan kedaluwarsa dalam 15 menit.'
+          })
+        });
+
+        return res.status(200).json({
+          message: 'Akun Anda belum diverifikasi. Kode verifikasi baru telah dikirim ke email Anda.',
+          email: normalizedEmail,
+          requiresVerification: true
+        });
+      }
       return res.status(400).json({ message: 'Email atau nama pengguna sudah digunakan' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = crypto.randomUUID();
     const createdAt = new Date().toISOString();
+    const adminSecretKey = process.env.ADMIN_SECRET || (process.env.NODE_ENV === 'production' ? null : 'stego-admin-secret-2026');
+    const assignedRole = (adminSecretKey && req.body.adminSecret && req.body.adminSecret === adminSecretKey) ? 'admin' : 'user';
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     await db.query(
-      'INSERT INTO users (id, username, email, password, created_at) VALUES (?, ?, ?, ?, ?)',
-      [userId, username, email.toLowerCase(), hashedPassword, createdAt]
+      'INSERT INTO users (id, username, email, password, role, is_verified, verification_code, verification_expires, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [userId, username, normalizedEmail, hashedPassword, assignedRole, false, otpCode, expiresAt, createdAt]
     );
 
-    // Initial welcome activity log
-    const logId = crypto.randomUUID();
-    await db.query(
-      'INSERT INTO activity_logs (id, user_id, type, title, description, status, badge_text, metric_summary) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [logId, userId, 'verify', 'Pendaftaran Berhasil', `Akun ${username} siap digunakan untuk simulasi steganografi.`, 'completed', 'Akun Aktif', 'Sesi Dimulai']
-    );
+    console.log(`\n========================================\n[KODE OTP REGISTRASI] Email: ${normalizedEmail}\nKode Verifikasi: ${otpCode}\n========================================\n`);
 
-    const token = jwt.sign(
-      { id: userId, username, email: email.toLowerCase() },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    // Send verification email via Brevo
+    await sendBrevoEmail({
+      toEmail: normalizedEmail,
+      toName: username,
+      subject: `${otpCode} adalah Kode Verifikasi Akun StegoAnim 2D Anda`,
+      htmlContent: getOtpEmailTemplate({
+        title: 'Verifikasi Akun Baru',
+        subtitle: `Halo <strong>${username}</strong>, terima kasih telah mendaftar di sistem StegoAnim 2D. Silakan masukkan kode verifikasi berikut untuk mengaktifkan akun Anda.`,
+        code: otpCode,
+        actionText: 'Ketik 6-digit kode di atas pada formulir pendaftaran untuk menyelesaikan aktivasi.',
+        warningText: 'Kode ini berlaku selama 15 menit. Jangan bagikan kepada siapa pun.'
+      })
+    });
 
     res.status(201).json({
-      message: 'Registrasi berhasil',
-      token,
-      userId,
-      user: { id: userId, username, email: email.toLowerCase() }
+      message: 'Pendaftaran berhasil. Silakan periksa inbox email Anda untuk kode verifikasi 6 digit.',
+      email: normalizedEmail,
+      requiresVerification: true
     });
   } catch (error) {
     console.error('[Register Error]:', error);
@@ -223,8 +412,151 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
+// Verify Email Code
+app.post('/api/auth/verify-email', async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ message: 'Email dan kode verifikasi 6 digit wajib diisi' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const inputCode = String(code).trim();
+
+    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [normalizedEmail]);
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: 'Pengguna dengan email tersebut tidak ditemukan' });
+    }
+
+    const user = users[0];
+    if (user.is_verified) {
+      const token = jwt.sign(
+        { id: user.id, username: user.username, email: user.email, role: user.role || 'user' },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      return res.json({
+        message: 'Akun sudah diverifikasi sebelumnya.',
+        token,
+        user: { id: user.id, username: user.username, email: user.email, role: user.role || 'user' }
+      });
+    }
+
+    if (user.verification_code !== inputCode) {
+      return res.status(400).json({ message: 'Kode verifikasi salah atau tidak cocok.' });
+    }
+
+    if (user.verification_expires && new Date(user.verification_expires).getTime() < Date.now()) {
+      return res.status(400).json({ message: 'Kode verifikasi telah kedaluwarsa. Silakan klik kirim ulang kode.' });
+    }
+
+    // Mark user as verified
+    await db.query(
+      'UPDATE users SET is_verified = ?, verification_code = ?, verification_expires = ? WHERE id = ?',
+      [true, null, null, user.id]
+    );
+
+    // Initial welcome activity log
+    const logId = crypto.randomUUID();
+    await db.query(
+      'INSERT INTO activity_logs (id, user_id, type, title, description, status, badge_text, metric_summary) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [logId, user.id, 'verify', 'Akun Terverifikasi', `Akun ${user.username} berhasil diverifikasi melalui email OTP.`, 'completed', 'Akun Aktif', 'Sesi Dimulai']
+    );
+
+    const role = user.role || 'user';
+    const token = jwt.sign(
+      { id: user.id, username: user.username, email: user.email, role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      message: 'Verifikasi akun berhasil! Selamat datang di StegoAnim 2D.',
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role
+      }
+    });
+  } catch (error) {
+    console.error('[Verify Email Error]:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat memverifikasi kode' });
+  }
+});
+
+// Resend Verification Code or Reset Code
+app.post('/api/auth/resend-code', async (req, res) => {
+  try {
+    const { email, type = 'verify' } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: 'Alamat email wajib diisi' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [normalizedEmail]);
+    if (!users || users.length === 0) {
+      return res.json({ message: 'Jika email terdaftar, kode baru telah dikirimkan.' });
+    }
+
+    const user = users[0];
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    if (type === 'reset') {
+      await db.query(
+        'UPDATE users SET reset_password_code = ?, reset_password_expires = ? WHERE id = ?',
+        [otpCode, expiresAt, user.id]
+      );
+
+      console.log(`\n========================================\n[KODE OTP RESET PASSWORD] Email: ${normalizedEmail}\nKode Reset: ${otpCode}\n========================================\n`);
+
+      await sendBrevoEmail({
+        toEmail: normalizedEmail,
+        toName: user.username,
+        subject: `${otpCode} adalah Kode Reset Kata Sandi StegoAnim 2D Anda`,
+        htmlContent: getOtpEmailTemplate({
+          title: 'Pemulihan Kata Sandi',
+          subtitle: `Halo <strong>${user.username}</strong>, kami menerima permintaan untuk mengatur ulang kata sandi akun Anda.`,
+          code: otpCode,
+          actionText: 'Masukkan 6-digit kode di atas pada formulir reset kata sandi.',
+          warningText: 'Jika Anda tidak meminta pengaturan ulang ini, abaikan email ini.'
+        })
+      });
+    } else {
+      await db.query(
+        'UPDATE users SET verification_code = ?, verification_expires = ? WHERE id = ?',
+        [otpCode, expiresAt, user.id]
+      );
+
+      console.log(`\n========================================\n[KODE OTP RESEND VERIFIKASI] Email: ${normalizedEmail}\nKode Verifikasi: ${otpCode}\n========================================\n`);
+
+      await sendBrevoEmail({
+        toEmail: normalizedEmail,
+        toName: user.username,
+        subject: `${otpCode} adalah Kode Verifikasi Akun StegoAnim 2D Anda`,
+        htmlContent: getOtpEmailTemplate({
+          title: 'Kode Verifikasi Baru',
+          subtitle: `Halo <strong>${user.username}</strong>, ini adalah kode verifikasi baru untuk mengaktifkan akun Anda.`,
+          code: otpCode,
+          actionText: 'Masukkan 6-digit kode verifikasi di atas untuk mengaktifkan akun.',
+          warningText: 'Kode ini berlaku selama 15 menit.'
+        })
+      });
+    }
+
+    res.json({
+      message: 'Kode verifikasi 6-digit baru telah dikirim ke email Anda.'
+    });
+  } catch (error) {
+    console.error('[Resend Code Error]:', error);
+    res.status(500).json({ message: 'Gagal mengirim ulang kode verifikasi' });
+  }
+});
+
 // Login
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -233,7 +565,7 @@ app.post('/api/auth/login', async (req, res) => {
 
     const [users] = await db.query(
       'SELECT * FROM users WHERE email = ?',
-      [email.toLowerCase()]
+      [email.toLowerCase().trim()]
     );
 
     if (!users || users.length === 0) {
@@ -246,8 +578,45 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ message: 'Email atau kata sandi tidak cocok' });
     }
 
+    // Check email verification status
+    if (user.is_verified === false || user.is_verified === 0) {
+      let otpCode = user.verification_code;
+      let expiresAt = user.verification_expires;
+      const isExpired = !expiresAt || new Date(expiresAt).getTime() < Date.now();
+      if (!otpCode || isExpired) {
+        otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+        await db.query(
+          'UPDATE users SET verification_code = ?, verification_expires = ? WHERE id = ?',
+          [otpCode, expiresAt, user.id]
+        );
+      }
+
+      console.log(`\n========================================\n[KODE OTP UNVERIFIED LOGIN] Email: ${user.email}\nKode Verifikasi: ${otpCode}\n========================================\n`);
+
+      sendBrevoEmail({
+        toEmail: user.email,
+        toName: user.username,
+        subject: `${otpCode} adalah Kode Verifikasi Akun StegoAnim 2D Anda`,
+        htmlContent: getOtpEmailTemplate({
+          title: 'Verifikasi Akun Diperlukan',
+          subtitle: `Halo <strong>${user.username}</strong>, akun Anda belum diverifikasi. Silakan masukkan kode verifikasi berikut.`,
+          code: otpCode,
+          actionText: 'Masukkan 6-digit kode verifikasi di atas untuk mengaktifkan akun Anda.',
+          warningText: 'Kode ini berlaku selama 15 menit.'
+        })
+      }).catch(() => {});
+
+      return res.status(403).json({
+        message: 'Akun Anda belum diverifikasi. Kode verifikasi 6 digit telah dikirim ke email Anda.',
+        requiresVerification: true,
+        email: user.email
+      });
+    }
+
+    const role = user.role || 'user';
     const token = jwt.sign(
-      { id: user.id, username: user.username, email: user.email },
+      { id: user.id, username: user.username, email: user.email, role },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -258,7 +627,8 @@ app.post('/api/auth/login', async (req, res) => {
       user: {
         id: user.id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        role
       }
     });
   } catch (error) {
@@ -267,10 +637,175 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// Forgot Password (6-Digit OTP via Brevo)
+app.post('/api/auth/forgot-password', forgotPasswordLimiter, async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: 'Alamat email wajib diisi' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const [users] = await db.query('SELECT id, username, email FROM users WHERE email = ?', [normalizedEmail]);
+    if (!users || users.length === 0) {
+      return res.json({
+        message: 'Jika alamat email terdaftar, kode 6 digit pemulihan kata sandi telah dikirim.'
+      });
+    }
+
+    const user = users[0];
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    await db.query(
+      'UPDATE users SET reset_password_code = ?, reset_password_expires = ? WHERE id = ?',
+      [otpCode, expiresAt, user.id]
+    );
+
+    console.log(`\n========================================\n[KODE OTP RESET PASSWORD] Email: ${normalizedEmail}\nKode Reset 6 Digit: ${otpCode}\n========================================\n`);
+
+    // Send reset email via Brevo
+    await sendBrevoEmail({
+      toEmail: normalizedEmail,
+      toName: user.username,
+      subject: `${otpCode} adalah Kode Reset Kata Sandi StegoAnim 2D Anda`,
+      htmlContent: getOtpEmailTemplate({
+        title: 'Pemulihan Kata Sandi',
+        subtitle: `Halo <strong>${user.username}</strong>, kami menerima permintaan untuk menyetel ulang kata sandi akun StegoAnim 2D Anda.`,
+        code: otpCode,
+        actionText: 'Masukkan 6 digit kode pemulihan di atas beserta kata sandi baru Anda pada aplikasi.',
+        warningText: 'Kode ini berlaku selama 15 menit. Jika Anda tidak merasa meminta reset ini, abaikan email ini.'
+      })
+    });
+
+    res.json({
+      message: 'Kode pemulihan 6-digit telah dikirim ke email Anda (Berlaku 15 menit)',
+      email: normalizedEmail
+    });
+  } catch (error) {
+    console.error('[Forgot Password Error]:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server saat memproses reset kata sandi' });
+  }
+});
+
+// Verify Reset OTP Code (Validate code first before allowing new password input)
+app.post('/api/auth/verify-reset-code', async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ message: 'Email dan kode OTP 6 digit wajib diisi' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const inputCode = String(code).trim();
+
+    const [users] = await db.query(
+      'SELECT id, username, email, reset_password_code, reset_password_expires FROM users WHERE email = ?',
+      [normalizedEmail]
+    );
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: 'Pengguna dengan email tersebut tidak ditemukan' });
+    }
+
+    const user = users[0];
+    if (!user.reset_password_code || user.reset_password_code !== inputCode) {
+      return res.status(400).json({ message: 'Kode OTP pemulihan salah atau tidak cocok.' });
+    }
+
+    if (user.reset_password_expires && new Date(user.reset_password_expires).getTime() < Date.now()) {
+      return res.status(400).json({ message: 'Kode OTP pemulihan telah kedaluwarsa. Silakan minta kode baru.' });
+    }
+
+    res.json({ message: 'Kode verifikasi valid. Silakan masukkan kata sandi baru Anda.', valid: true });
+  } catch (error) {
+    console.error('[Verify Reset Code Error]:', error);
+    res.status(500).json({ message: 'Gagal memverifikasi kode OTP' });
+  }
+});
+
+// Reset Password (using 6-digit code or legacy token)
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { email, code, token, newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: 'Kata sandi baru minimal 6 karakter' });
+    }
+
+    const inputCode = String(code || token || '').trim();
+    if (!inputCode) {
+      return res.status(400).json({ message: 'Kode verifikasi 6 digit wajib diisi' });
+    }
+
+    let users = [];
+    if (email) {
+      [users] = await db.query(
+        'SELECT id, username, email, reset_password_code, reset_password_expires FROM users WHERE email = ?',
+        [email.toLowerCase().trim()]
+      );
+    } else {
+      [users] = await db.query(
+        'SELECT id, username, email, reset_password_code, reset_password_expires FROM users WHERE reset_password_code = ? OR reset_password_token = ?',
+        [inputCode, inputCode]
+      );
+    }
+
+    if (!users || users.length === 0) {
+      return res.status(400).json({ message: 'Pengguna tidak ditemukan atau kode salah.' });
+    }
+
+    const user = users[0];
+    if (user.reset_password_code !== inputCode && user.reset_password_token !== inputCode) {
+      return res.status(400).json({ message: 'Kode verifikasi pemulihan tidak sesuai.' });
+    }
+
+    if (user.reset_password_expires && new Date(user.reset_password_expires).getTime() < Date.now()) {
+      return res.status(400).json({ message: 'Kode pemulihan telah kedaluwarsa. Silakan minta kode baru.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.query(
+      'UPDATE users SET password = ?, is_verified = ?, reset_password_code = ?, reset_password_token = ?, reset_password_expires = ? WHERE id = ?',
+      [hashedPassword, true, null, null, null, user.id]
+    );
+
+    res.json({ message: 'Kata sandi berhasil diperbarui. Silakan masuk menggunakan kata sandi baru Anda.' });
+  } catch (error) {
+    console.error('[Reset Password Error]:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server saat mereset kata sandi' });
+  }
+});
+
+// Admin: Get All Users & Summary
+app.get('/api/admin/users', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const [users] = await db.query('SELECT id, username, email, role, created_at FROM users');
+    const [projects] = await db.query('SELECT id, user_id FROM projects');
+    const projectCounts = {};
+    (projects || []).forEach(p => {
+      projectCounts[p.user_id] = (projectCounts[p.user_id] || 0) + 1;
+    });
+
+    const userList = (users || []).map(u => ({
+      id: u.id,
+      username: u.username,
+      email: u.email,
+      role: u.role || 'user',
+      createdAt: u.created_at,
+      projectCount: projectCounts[u.id] || 0
+    }));
+
+    res.json(userList);
+  } catch (error) {
+    console.error('[Admin Users Error]:', error);
+    res.status(500).json({ message: 'Gagal mengambil data pengguna' });
+  }
+});
+
 // Get Current User Profile (me)
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
   try {
-    const [users] = await db.query('SELECT id, username, email, created_at FROM users WHERE id = ?', [req.user.id]);
+    const [users] = await db.query('SELECT id, username, email, role, created_at FROM users WHERE id = ?', [req.user.id]);
     if (!users || users.length === 0) {
       return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
     }
@@ -280,6 +815,7 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role || req.user.role || 'user',
         createdAt: user.created_at
       }
     });
@@ -658,22 +1194,35 @@ app.post('/api/stego/embed', authenticateToken, upload.single('video'), async (r
     title = req.file.originalname
   } = req.body;
 
-  if (!payload) {
+  if (!payload || !payload.trim()) {
+    try { fs.unlinkSync(videoPath); } catch (_) {}
     return res.status(400).json({ error: 'Payload teks/pesan rahasia wajib diisi' });
   }
+
+  // Sanitasi ukuran payload (maksimal 1 MB)
+  if (Buffer.byteLength(payload, 'utf8') > 1024 * 1024) {
+    try { fs.unlinkSync(videoPath); } catch (_) {}
+    return res.status(400).json({ error: 'Ukuran payload melebihi batas maksimal 1 MB' });
+  }
+
+  // Sanitasi parameter steganografi
+  const safeThreshold = Math.min(50, Math.max(1, parseFloat(threshold) || 12));
+  const safeBitPlane = (parseInt(bitPlane, 10) === 2) ? 2 : 1;
+  const safeTitle = String(title || req.file.originalname || 'Stego Project').slice(0, 255);
 
   const pythonScript = path.join(__dirname, 'engine', 'embed.py');
   const pythonArgs = [
     pythonScript,
     videoPath,
     payload,
-    String(threshold),
-    String(bitPlane),
+    String(safeThreshold),
+    String(safeBitPlane),
     outputDir,
     secretKey || ''
   ];
 
-  const pythonProcess = spawn('python', pythonArgs);
+  const pythonCmd = getPythonCmd();
+  const pythonProcess = spawn(pythonCmd, pythonArgs);
   let outputData = '';
   let errorData = '';
 
@@ -687,9 +1236,10 @@ app.post('/api/stego/embed', authenticateToken, upload.single('video'), async (r
 
   pythonProcess.on('close', async (code) => {
     if (code !== 0) {
+      try { fs.unlinkSync(videoPath); } catch (_) {}
       console.error('[Python Embed Engine Failed]:', errorData || outputData);
-      return res.status(500).json({
-        error: 'Steganography embedding engine failed',
+      return res.status(400).json({
+        error: 'Proses penyisipan steganografi gagal',
         details: errorData || outputData
       });
     }
@@ -713,7 +1263,7 @@ app.post('/api/stego/embed', authenticateToken, upload.single('video'), async (r
 
       // 1. Save Project
       await db.query(
-        'INSERT INTO projects (id, user_id, title, filename, file_size, resolution, fps, duration, total_frames, status, created_at, thumbnail_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO projects (id, user_id, title, filename, file_size, resolution, fps, duration, total_frames, threshold, bit_plane, status, created_at, thumbnail_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           projectId,
           userId,
@@ -724,6 +1274,8 @@ app.post('/api/stego/embed', authenticateToken, upload.single('video'), async (r
           result.fps || 24,
           result.duration || '00:00:15',
           result.totalFrames || 360,
+          Number(threshold) || 12.0,
+          Number(bitPlane) || 1,
           'embedded',
           now,
           'from-blue-600/20 via-indigo-500/10 to-transparent'
@@ -826,8 +1378,12 @@ app.post('/api/stego/embed', authenticateToken, upload.single('video'), async (r
         framesEmbedded: result.framesEmbedded
       };
 
+      // Cleanup temporary uploaded raw cover video from uploads/
+      try { fs.unlinkSync(videoPath); } catch (_) {}
+
       res.status(201).json(responseData);
     } catch (err) {
+      try { fs.unlinkSync(videoPath); } catch (_) {}
       console.error('[Process Engine Output Error]:', err);
       res.status(500).json({ error: 'Gagal memproses keluaran mesin steganografi', details: err.message });
     }
@@ -866,16 +1422,26 @@ app.post('/api/stego/extract', authenticateToken, upload.single('video'), async 
     return res.status(400).json({ error: 'File video atau ID proyek steganografi wajib disediakan' });
   }
 
+  const safeThreshold = Math.min(50, Math.max(1, parseFloat(threshold) || 12));
+  const safeBitPlane = (parseInt(bitPlane, 10) === 2) ? 2 : 1;
+
   const pythonScript = path.join(__dirname, 'engine', 'extract.py');
   const pythonArgs = [
     pythonScript,
     targetVideoPath,
-    String(threshold),
-    String(bitPlane),
+    String(safeThreshold),
+    String(safeBitPlane),
     secretKey || ''
   ];
 
-  const pythonProcess = spawn('python', pythonArgs);
+  const cleanupExtractUpload = () => {
+    if (req.file && req.file.path) {
+      try { if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path); } catch (_) {}
+    }
+  };
+
+  const pythonCmd = getPythonCmd();
+  const pythonProcess = spawn(pythonCmd, pythonArgs);
   let outputData = '';
   let errorData = '';
 
@@ -888,21 +1454,68 @@ app.post('/api/stego/extract', authenticateToken, upload.single('video'), async 
   });
 
   pythonProcess.on('close', async (code) => {
-    if (code !== 0) {
-      console.error('[Python Extract Engine Failed]:', errorData || outputData);
-      return res.status(400).json({
-        error: 'Ekstraksi steganografi gagal',
-        details: errorData || outputData
-      });
-    }
-
     try {
+      if (code !== 0) {
+        console.error('[Python Extract Engine Failed]:', errorData || outputData);
+        return res.status(400).json({
+          error: 'Ekstraksi steganografi gagal',
+          details: errorData || outputData
+        });
+      }
+
       const jsonStart = outputData.indexOf('{');
       if (jsonStart === -1) {
         throw new Error('Engine output did not contain valid JSON');
       }
       const jsonStr = outputData.substring(jsonStart);
       const result = JSON.parse(jsonStr);
+
+      // Handle forensic inspection statuses
+      if (result.status === 'clean') {
+        const logId = crypto.randomUUID();
+        const now = new Date().toISOString();
+        const videoFilename = path.basename(targetVideoPath);
+        await db.query(
+          'INSERT INTO activity_logs (id, user_id, timestamp, type, title, description, status, badge_text, metric_summary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            logId,
+            userId,
+            now,
+            'verify',
+            'Inspeksi: Video Bersih',
+            `${videoFilename} diperiksa: tidak ditemukan signature steganografi.`,
+            'completed',
+            'Clean Video',
+            'Non-Stego (Bersih)'
+          ]
+        );
+        return res.status(200).json(result);
+      }
+
+      if (result.status === 'stego_detected') {
+        const logId = crypto.randomUUID();
+        const now = new Date().toISOString();
+        const videoFilename = path.basename(targetVideoPath);
+        await db.query(
+          'INSERT INTO activity_logs (id, user_id, timestamp, type, title, description, status, badge_text, metric_summary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            logId,
+            userId,
+            now,
+            'verify',
+            'Inspeksi: Stego Terdeteksi',
+            `${videoFilename} terdeteksi memuat payload terenkripsi AES-256-GCM.`,
+            'completed',
+            'Stego Detected',
+            'Terenkripsi AES-256'
+          ]
+        );
+        return res.status(200).json(result);
+      }
+
+      if (result.status === 'key_invalid') {
+        return res.status(400).json({ error: result.error, status: 'key_invalid', isStego: true, isEncrypted: true });
+      }
 
       if (result.error) {
         return res.status(400).json({ error: result.error });
@@ -942,8 +1555,10 @@ app.post('/api/stego/extract', authenticateToken, upload.single('video'), async 
       res.json({
         status: 'extracted',
         message: 'Pesan rahasia berhasil diekstrak dan diverifikasi',
+        payload: result.extractedPayload,
+        content: result.extractedPayload,
         extractedPayload: result.extractedPayload,
-        sizeBytes: result.sizeBytes || result.extractedPayload.length,
+        sizeBytes: result.sizeBytes || (result.extractedPayload ? result.extractedPayload.length : 0),
         integrityValid: integrityMatch,
         sha256Extracted: result.sha256,
         sha256Original: result.sha256,
@@ -954,6 +1569,8 @@ app.post('/api/stego/extract', authenticateToken, upload.single('video'), async 
     } catch (err) {
       console.error('[Process Extraction Error]:', err);
       res.status(500).json({ error: 'Gagal memproses hasil ekstraksi', details: err.message });
+    } finally {
+      cleanupExtractUpload();
     }
   });
 });
@@ -1317,7 +1934,16 @@ app.get('/api/media/stream/:filename', (req, res) => {
 
 // Centralized Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error('[Express Error]:', err.stack);
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'Ukuran berkas melebihi batas maksimal 100 MB' });
+    }
+    return res.status(400).json({ error: `Kesalahan unggah berkas: ${err.message}` });
+  }
+  if (err.message && err.message.includes('Format berkas tidak diizinkan')) {
+    return res.status(400).json({ error: err.message });
+  }
+  console.error('[Express Error]:', err.message);
   res.status(err.status || 500).json({
     error: err.message || 'Internal Server Error'
   });

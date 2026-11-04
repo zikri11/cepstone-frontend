@@ -24,7 +24,27 @@ function readLocalStore() {
   try {
     if (fs.existsSync(storeFilePath)) {
       const content = fs.readFileSync(storeFilePath, 'utf8');
-      return JSON.parse(content);
+      const store = JSON.parse(content);
+      // Auto-backfill new columns for local store persistence
+      let modified = false;
+      if (Array.isArray(store.users)) {
+        store.users.forEach(u => {
+          if (!u.role) { u.role = 'user'; modified = true; }
+          if (u.is_verified === undefined) { u.is_verified = true; modified = true; }
+          if (u.verification_code === undefined) { u.verification_code = null; modified = true; }
+          if (u.reset_password_code === undefined) { u.reset_password_code = null; modified = true; }
+        });
+      }
+      if (Array.isArray(store.projects)) {
+        store.projects.forEach(p => {
+          if (p.threshold === undefined) { p.threshold = 12.0; modified = true; }
+          if (p.bit_plane === undefined) { p.bit_plane = 1; modified = true; }
+        });
+      }
+      if (modified) {
+        fs.writeFileSync(storeFilePath, JSON.stringify(store, null, 2), 'utf8');
+      }
+      return store;
     }
   } catch (err) {
     console.error('[Database Fallback] Failed reading local store:', err.message);
@@ -108,6 +128,12 @@ function executeLocalQuery(text, params = []) {
         rows = rows.filter(r => r.project_id === params[0]);
       } else if (/email\s*=\s*\?/i.test(whereClause)) {
         rows = rows.filter(r => r.email === params[0]);
+      } else if (/verification_code\s*=\s*\?/i.test(whereClause)) {
+        rows = rows.filter(r => r.verification_code === params[0]);
+      } else if (/reset_password_code\s*=\s*\?/i.test(whereClause)) {
+        rows = rows.filter(r => r.reset_password_code === params[0]);
+      } else if (/reset_password_token\s*=\s*\?/i.test(whereClause)) {
+        rows = rows.filter(r => r.reset_password_token === params[0]);
       } else if (/id\s*=\s*\?/i.test(whereClause)) {
         rows = rows.filter(r => r.id === params[0]);
       } else if (/username\s*=\s*\?/i.test(whereClause)) {
@@ -175,9 +201,14 @@ function executeLocalQuery(text, params = []) {
 
     if (!store[table]) return [[], []];
 
-    // Find record by id = ?
-    let targetId = params[params.length - 1];
-    const target = store[table].find(r => r.id === targetId);
+    // Find record by id = ? or email = ?
+    let targetVal = params[params.length - 1];
+    let target = null;
+    if (/email\s*=\s*\?/i.test(whereClause)) {
+      target = store[table].find(r => r.email === targetVal);
+    } else {
+      target = store[table].find(r => r.id === targetVal);
+    }
     if (target) {
       const assignments = setClause.split(',').map(s => s.trim());
       assignments.forEach((assign, idx) => {
@@ -249,6 +280,13 @@ async function initDb() {
         username VARCHAR(100) NOT NULL UNIQUE,
         email VARCHAR(150) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
+        role VARCHAR(20) NOT NULL DEFAULT 'user',
+        is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+        verification_code VARCHAR(10) DEFAULT NULL,
+        verification_expires TIMESTAMP DEFAULT NULL,
+        reset_password_code VARCHAR(10) DEFAULT NULL,
+        reset_password_token VARCHAR(100) DEFAULT NULL,
+        reset_password_expires TIMESTAMP DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -262,11 +300,24 @@ async function initDb() {
         fps DECIMAL(5,2) NOT NULL,
         duration VARCHAR(50) NOT NULL,
         total_frames INT NOT NULL,
+        threshold DECIMAL(5,2) NOT NULL DEFAULT 12.0,
+        bit_plane INT NOT NULL DEFAULT 1,
         status VARCHAR(50) NOT NULL DEFAULT 'ready' CHECK (status IN ('embedded', 'extracted', 'processing', 'ready')),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         thumbnail_color VARCHAR(50) NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       );
+
+      -- Idempotent migrations for existing installations
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'user';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN NOT NULL DEFAULT FALSE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code VARCHAR(10) DEFAULT NULL;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_expires TIMESTAMP DEFAULT NULL;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_code VARCHAR(10) DEFAULT NULL;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_token VARCHAR(100) DEFAULT NULL;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_expires TIMESTAMP DEFAULT NULL;
+      ALTER TABLE projects ADD COLUMN IF NOT EXISTS threshold DECIMAL(5,2) NOT NULL DEFAULT 12.0;
+      ALTER TABLE projects ADD COLUMN IF NOT EXISTS bit_plane INT NOT NULL DEFAULT 1;
 
       CREATE TABLE IF NOT EXISTS metrics (
         id VARCHAR(36) PRIMARY KEY,

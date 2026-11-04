@@ -66,6 +66,10 @@ def main():
                         payload_byte_len = int(extracted_bits[:32], 2)
                         
                     if payload_byte_len is not None:
+                        if payload_byte_len <= 0 or payload_byte_len > 10 * 1024 * 1024:
+                            break
+                        if len(extracted_bits) >= 64 and binary_to_bytes(extracted_bits[32:64]) not in (b"ENC1", b"RAW0"):
+                            break
                         total_needed_bits = 32 + (payload_byte_len * 8)
                         if len(extracted_bits) >= total_needed_bits:
                             break
@@ -78,11 +82,19 @@ def main():
                         payload_byte_len = int(extracted_bits[:32], 2)
                         
                     if payload_byte_len is not None:
+                        if payload_byte_len <= 0 or payload_byte_len > 10 * 1024 * 1024:
+                            break
+                        if len(extracted_bits) >= 64 and binary_to_bytes(extracted_bits[32:64]) not in (b"ENC1", b"RAW0"):
+                            break
                         total_needed_bits = 32 + (payload_byte_len * 8)
                         if len(extracted_bits) >= total_needed_bits:
                             break
 
         if payload_byte_len is not None:
+            if payload_byte_len <= 0 or payload_byte_len > 10 * 1024 * 1024:
+                break
+            if len(extracted_bits) >= 64 and binary_to_bytes(extracted_bits[32:64]) not in (b"ENC1", b"RAW0"):
+                break
             total_needed_bits = 32 + (payload_byte_len * 8)
             if len(extracted_bits) >= total_needed_bits:
                 break
@@ -90,26 +102,42 @@ def main():
         prev_frame = frame
 
     cap.release()
+    video_sha256 = hashlib.sha256(open(video_path, 'rb').read()).hexdigest()
     
-    if payload_byte_len is None or payload_byte_len <= 0:
-        print(json.dumps({"error": "Tidak ditemukan data payload atau ambang batas threshold tidak sesuai."}))
-        sys.exit(1)
+    clean_json = {
+        "status": "clean",
+        "isStego": False,
+        "message": "Video Bersih: Tidak ditemukan payload atau signature steganografi pada frame.",
+        "videoSha256": video_sha256,
+        "framesEvaluated": frames_evaluated,
+        "framesExtracted": frames_extracted
+    }
+    
+    if payload_byte_len is None or payload_byte_len <= 0 or payload_byte_len > 10 * 1024 * 1024:
+        print(json.dumps(clean_json))
+        sys.exit(0)
         
     total_needed_bits = 32 + (payload_byte_len * 8)
     raw_payload_bits = extracted_bits[32:total_needed_bits]
     raw_bytes = binary_to_bytes(raw_payload_bits)
     
-    final_payload_text = ""
-    
-    # Check if encrypted with ENC1 marker
+    if not (raw_bytes.startswith(b"ENC1") or raw_bytes.startswith(b"RAW0")):
+        print(json.dumps(clean_json))
+        sys.exit(0)
+        
     if raw_bytes.startswith(b"ENC1"):
-        if len(raw_bytes) < 16:
-            print(json.dumps({"error": "Corrupted encrypted payload header"}))
-            sys.exit(1)
-            
         if not secret_key:
-            print(json.dumps({"error": "Payload dilindungi enkripsi AES-256-GCM. Kunci rahasia (Cipher Key) wajib dimasukkan."}))
-            sys.exit(1)
+            print(json.dumps({
+                "status": "stego_detected",
+                "isStego": True,
+                "isEncrypted": True,
+                "encryption": "AES-256-GCM",
+                "message": "Stego Video Terdeteksi: Berkas memuat payload terenkripsi AES-256-GCM. Kunci rahasia (Cipher Key) wajib dimasukkan.",
+                "videoSha256": video_sha256,
+                "framesEvaluated": frames_evaluated,
+                "framesExtracted": frames_extracted
+            }))
+            sys.exit(0)
             
         nonce = raw_bytes[4:16]
         ciphertext = raw_bytes[16:]
@@ -120,23 +148,33 @@ def main():
             decrypted = aesgcm.decrypt(nonce, ciphertext, None)
             final_payload_text = decrypted.decode('utf-8')
         except Exception:
-            print(json.dumps({"error": "Kunci rahasia (Cipher Key) tidak valid atau salah. Gagal mendekripsi payload."}))
-            sys.exit(1)
+            print(json.dumps({
+                "status": "key_invalid",
+                "isStego": True,
+                "isEncrypted": True,
+                "error": "Kunci rahasia (Cipher Key) tidak cocok. Gagal mendekripsi payload.",
+                "videoSha256": video_sha256,
+                "framesEvaluated": frames_evaluated,
+                "framesExtracted": frames_extracted
+            }))
+            sys.exit(0)
             
-    elif raw_bytes.startswith(b"RAW0"):
-        final_payload_text = raw_bytes[4:].decode('utf-8', errors='replace')
+        is_encrypted = True
     else:
-        final_payload_text = raw_bytes.decode('utf-8', errors='replace')
+        final_payload_text = raw_bytes[4:].decode('utf-8', errors='replace')
+        is_encrypted = False
         
     payload_sha256 = hashlib.sha256(final_payload_text.encode('utf-8')).hexdigest()
-    video_sha256 = hashlib.sha256(open(video_path, 'rb').read()).hexdigest()
     
     result = {
         "status": "extracted",
+        "isStego": True,
+        "integrityValid": True,
+        "isEncrypted": is_encrypted,
+        "encryption": "AES-256-GCM" if is_encrypted else "none",
         "message": "Pesan rahasia berhasil diekstrak dan diverifikasi",
         "extractedPayload": final_payload_text,
         "sizeBytes": len(final_payload_text),
-        "integrityValid": True,
         "sha256": payload_sha256,
         "videoSha256": video_sha256,
         "framesEvaluated": frames_evaluated,
@@ -144,6 +182,7 @@ def main():
     }
     
     print(json.dumps(result))
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

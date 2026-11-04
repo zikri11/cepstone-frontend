@@ -4,6 +4,13 @@ CREATE TABLE users (
     username VARCHAR(100) NOT NULL UNIQUE,
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'user',
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    verification_code VARCHAR(10) DEFAULT NULL,
+    verification_expires TIMESTAMP DEFAULT NULL,
+    reset_password_code VARCHAR(10) DEFAULT NULL,
+    reset_password_token VARCHAR(100) DEFAULT NULL,
+    reset_password_expires TIMESTAMP DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -18,6 +25,8 @@ CREATE TABLE projects (
     fps DECIMAL(5,2) NOT NULL,
     duration VARCHAR(50) NOT NULL, -- Contoh: "00:03:45"
     total_frames INT NOT NULL,
+    threshold DECIMAL(5,2) NOT NULL DEFAULT 12.0,
+    bit_plane INT NOT NULL DEFAULT 1,
     status VARCHAR(50) NOT NULL DEFAULT 'ready' CHECK (status IN ('embedded', 'extracted', 'processing', 'ready')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     thumbnail_color VARCHAR(50) NOT NULL,
@@ -82,3 +91,17 @@ CREATE TABLE activity_logs (
     metric_summary VARCHAR(255) DEFAULT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- ====================================================================
+-- Migrasi Tambahan (Untuk Database yang Sudah Berisi Data Lama)
+-- ====================================================================
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'user';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code VARCHAR(10) DEFAULT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_expires TIMESTAMP DEFAULT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_code VARCHAR(10) DEFAULT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_token VARCHAR(100) DEFAULT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_expires TIMESTAMP DEFAULT NULL;
+
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS threshold DECIMAL(5,2) NOT NULL DEFAULT 12.0;
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS bit_plane INT NOT NULL DEFAULT 1;

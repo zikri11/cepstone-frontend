@@ -9,6 +9,12 @@ node_modules/
 uploads/
 outputs/
 data/
+*.mp4
+*.avi
+
+# Python
+__pycache__/
+*.pyc
 
 # Logs & Debug
 *.log
