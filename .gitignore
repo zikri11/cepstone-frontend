@@ -2,7 +2,19 @@
 /node_modules
 /.pnp
 .pnp.js
-backend/node_modules/
+# backend separation
+backend/
+
+# local agent and editor configurations
+.agents/
+.claude/
+.cursor/
+.opencode/
+.antigravity/
+.mcp.json
+opencode.json
+AGENTS.md
+CLAUDE.md
 
 # testing
 /coverage
