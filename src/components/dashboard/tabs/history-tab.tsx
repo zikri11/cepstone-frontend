@@ -159,7 +159,7 @@ export function HistoryTab({
               <ArrowUpDownIcon className="size-3 text-muted-foreground shrink-0" />
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as "latest" | "psnr" | "payload")}
                 aria-label="Urutkan video"
                 className="bg-transparent text-xs text-foreground font-medium outline-none cursor-pointer"
               >

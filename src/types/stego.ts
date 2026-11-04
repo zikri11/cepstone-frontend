@@ -31,11 +31,26 @@ export interface StegoProject {
   fps: number;
   duration: string;
   totalFrames: number;
+  threshold?: number;
+  bitPlane?: number;
   status: "embedded" | "extracted" | "processing" | "ready";
   createdAt: string;
   metrics: StegoMetrics;
   payload: PayloadData;
   thumbnailColor: string; // Subtle visual gradient placeholder
+  outputVideoUrl?: string;
+  downloadUrl?: string;
+  videoUrl?: string;
+}
+
+export type UserRole = "user" | "admin";
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  email: string;
+  role: UserRole;
+  createdAt: string;
 }
 
 export interface FrameMetric {
@@ -66,4 +81,30 @@ export interface EmbeddingParameters {
   encryptionAlgorithm: "AES-256-GCM" | "None";
   secretKey: string;
   payloadText: string;
+}
+
+export interface ExtractionApiResponse {
+  status?: "clean" | "stego_detected" | "corrupted" | "extracted" | "key_invalid" | string;
+  isStego?: boolean;
+  isEncrypted?: boolean;
+  encryption?: string;
+  message?: string;
+  error?: string;
+  videoSha256?: string;
+  framesEvaluated?: number;
+  framesExtracted?: number;
+  extractedPayload?: string;
+  payload?: string;
+  content?: string;
+  extractedText?: string;
+  text?: string;
+  sizeBytes?: number;
+  sha256?: string;
+  sha256Extracted?: string;
+  sha256Original?: string;
+  isMatch?: boolean;
+  metrics?: {
+    sha256Extracted?: string;
+    sha256Original?: string;
+  };
 }

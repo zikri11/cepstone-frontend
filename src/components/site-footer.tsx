@@ -37,8 +37,20 @@ export function SiteFooter() {
     <footer className="border-t border-border/40 py-14">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
         <div>
-          <Link href="/" className="font-semibold tracking-tight text-foreground">
-            StegoAnim 2D
+          <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight text-foreground hover:opacity-90 transition-opacity">
+            <div className="flex items-center gap-1.5 shrink-0">
+              <img
+                src="/logo-unsil.png"
+                alt="Logo Universitas Siliwangi"
+                className="h-6 w-auto object-contain"
+              />
+              <img
+                src="/logo-if.png"
+                alt="Logo Informatika UNSIL"
+                className="h-5 w-auto object-contain rounded-xs"
+              />
+            </div>
+            <span className="font-bold tracking-tight">StegoAnim 2D</span>
           </Link>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
             Penerapan Steganografi Video Animasi 2D Berbasis Inter-Frame Difference

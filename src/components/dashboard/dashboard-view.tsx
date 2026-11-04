@@ -1,24 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import {
-  EyeIcon,
-  FileVideoIcon,
-  KeyRoundIcon,
-  LayersIcon,
-} from "lucide-react";
 
 import {
   DashboardHeader,
   DashboardTabId,
 } from "@/components/dashboard/dashboard-header";
-import {
-  initialActivities,
-  initialProjects,
-} from "@/lib/stego-mock-data";
 import { ActivityLog, StegoProject } from "@/types/stego";
-import { Badge } from "@/components/ui/badge";
+import { fetchProjects, fetchActivityLogs, getAuthToken } from "@/lib/api";
 import { OverviewTab } from "@/components/dashboard/tabs/overview-tab";
 import { EmbedTab } from "@/components/dashboard/tabs/embed-tab";
 import { ExtractTab } from "@/components/dashboard/tabs/extract-tab";
@@ -26,10 +17,44 @@ import { TelemetryTab } from "@/components/dashboard/tabs/telemetry-tab";
 import { HistoryTab } from "@/components/dashboard/tabs/history-tab";
 
 export function DashboardView() {
+  const router = useRouter();
+  const [isAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return Boolean(getAuthToken());
+    }
+    return true;
+  });
   const [activeTab, setActiveTab] = useState<DashboardTabId>("overview");
-  const [projects, setProjects] = useState<StegoProject[]>(initialProjects);
-  const [activities, setActivities] =
-    useState<ActivityLog[]>(initialActivities);
+  const [projects, setProjects] = useState<StegoProject[]>([]);
+  const [activities, setActivities] = useState<ActivityLog[]>([]);
+
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    Promise.all([
+      fetchProjects(),
+      fetchActivityLogs()
+    ])
+      .then(([liveProjects, liveLogs]) => {
+        setProjects(liveProjects);
+        setActivities(liveLogs);
+      })
+      .catch(() => {});
+  }, [router]);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="size-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <p className="text-xs text-muted-foreground font-mono">Memverifikasi sesi pengguna...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSuccessEmbed = (newProject: StegoProject) => {
     setProjects((prev) => {
@@ -76,7 +101,11 @@ export function DashboardView() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <DashboardHeader activeTab={activeTab} onTabChange={setActiveTab} />
+      <DashboardHeader
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        projectsCount={projects.length}
+      />
 
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
         <AnimatePresence mode="wait">
@@ -91,6 +120,7 @@ export function DashboardView() {
               <OverviewTab
                 onNavigateTab={setActiveTab}
                 activities={activities}
+                projects={projects}
               />
             </motion.div>
           )}
@@ -134,7 +164,10 @@ export function DashboardView() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
             >
-              <TelemetryTab />
+              <TelemetryTab
+                projects={projects}
+                onNavigateTab={setActiveTab}
+              />
             </motion.div>
           )}
 

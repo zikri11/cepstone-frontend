@@ -16,8 +16,8 @@ import {
   ZapIcon,
 } from "lucide-react";
 
-import { ActivityLog, FrameMetric } from "@/types/stego";
-import { mockFrameMetrics, overviewStats } from "@/lib/stego-mock-data";
+import { ActivityLog, FrameMetric, StegoProject } from "@/types/stego";
+import { mockFrameMetrics } from "@/lib/stego-mock-data";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -34,10 +34,24 @@ import {
 interface OverviewTabProps {
   onNavigateTab: (tab: "embed" | "extract" | "telemetry" | "history") => void;
   activities: ActivityLog[];
+  projects: StegoProject[];
 }
 
-export function OverviewTab({ onNavigateTab, activities }: OverviewTabProps) {
+export function OverviewTab({ onNavigateTab, activities, projects }: OverviewTabProps) {
   const [hoveredFrame, setHoveredFrame] = useState<FrameMetric | null>(null);
+  const [showAllActivities, setShowAllActivities] = useState(false);
+
+  // Dynamic real stats computed from live projects
+  const totalVideos = projects.length;
+  const avgPsnr = totalVideos > 0
+    ? (projects.reduce((acc, p) => acc + (p.metrics?.psnr || 0), 0) / totalVideos).toFixed(2)
+    : "0.00";
+  const avgSsim = totalVideos > 0
+    ? (projects.reduce((acc, p) => acc + (p.metrics?.ssim || 0), 0) / totalVideos).toFixed(4)
+    : "0.0000";
+  const totalPayloadKb = totalVideos > 0
+    ? (projects.reduce((acc, p) => acc + (p.metrics?.payloadSizeBytes || 0), 0) / 1024).toFixed(1)
+    : "0.0";
 
   // SVG Chart Dimensions
   const chartWidth = 720;
@@ -113,10 +127,10 @@ export function OverviewTab({ onNavigateTab, activities }: OverviewTabProps) {
           </div>
           <div className="mt-2.5">
             <div className="text-2xl font-semibold tracking-tight text-foreground">
-              {overviewStats.totalVideos}
+              {totalVideos}
             </div>
             <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1">
-              <span className="text-emerald-500 font-medium">2D Animasi</span> • 24 & 30 FPS
+              <span className="text-emerald-500 font-medium">2D Animasi</span> • 24 &amp; 30 FPS
             </p>
           </div>
         </Card>
@@ -129,7 +143,7 @@ export function OverviewTab({ onNavigateTab, activities }: OverviewTabProps) {
           </div>
           <div className="mt-2.5">
             <div className="text-2xl font-semibold tracking-tight text-foreground flex items-baseline gap-1">
-              {overviewStats.averagePsnr}
+              {avgPsnr}
               <span className="text-xs font-normal text-muted-foreground">dB</span>
             </div>
             <p className="text-[11px] text-emerald-500 font-medium mt-0.5 flex items-center gap-1">
@@ -147,10 +161,10 @@ export function OverviewTab({ onNavigateTab, activities }: OverviewTabProps) {
           </div>
           <div className="mt-2.5">
             <div className="text-2xl font-semibold tracking-tight text-foreground">
-              {overviewStats.averageSsim}
+              {avgSsim}
             </div>
             <p className="text-[11px] text-sky-500 font-medium mt-0.5 flex items-center gap-1">
-              <span>Struktur Identik (0.99)</span>
+              <span>Struktur Identik (&gt; 0.98)</span>
             </p>
           </div>
         </Card>
@@ -163,7 +177,7 @@ export function OverviewTab({ onNavigateTab, activities }: OverviewTabProps) {
           </div>
           <div className="mt-2.5">
             <div className="text-2xl font-semibold tracking-tight text-foreground flex items-baseline gap-1">
-              {overviewStats.totalPayloadKb}
+              {totalPayloadKb}
               <span className="text-xs font-normal text-muted-foreground">KB</span>
             </div>
             <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -414,34 +428,57 @@ export function OverviewTab({ onNavigateTab, activities }: OverviewTabProps) {
                 Aktivitas Pipeline Terkini
               </h3>
             </div>
-            <span className="text-[10px] text-muted-foreground">Real-time</span>
+            <span className="text-[10px] text-muted-foreground font-mono">
+              {activities.length > 0 ? `${Math.min(activities.length, showAllActivities ? activities.length : 3)} dari ${activities.length}` : "Real-time"}
+            </span>
           </div>
 
           {/* ReUI Timeline Component */}
-          <Timeline className="pt-2">
-            {activities.map((act, idx) => (
-              <TimelineItem key={act.id} step={idx + 1}>
-                <TimelineHeader>
-                  <TimelineDate className="text-[10px] text-muted-foreground">
-                    {act.timestamp}
-                  </TimelineDate>
-                  <TimelineTitle className="text-xs font-medium text-foreground">
-                    {act.title}
-                  </TimelineTitle>
-                </TimelineHeader>
-                <TimelineIndicator className="size-2 bg-primary" />
-                {idx < activities.length - 1 && <TimelineSeparator />}
-                <TimelineContent className="text-[11px] text-muted-foreground/80 pb-3">
-                  <p>{act.description}</p>
-                  {act.metricSummary && (
-                    <span className="inline-block mt-1 text-[10px] font-mono text-foreground/80 bg-muted/50 px-1.5 py-0.5 rounded">
-                      {act.metricSummary}
-                    </span>
-                  )}
-                </TimelineContent>
-              </TimelineItem>
-            ))}
-          </Timeline>
+          {activities.length === 0 ? (
+            <p className="text-xs text-muted-foreground py-4 text-center">
+              Belum ada aktivitas tercatat.
+            </p>
+          ) : (
+            <Timeline className="pt-2">
+              {(showAllActivities ? activities : activities.slice(0, 3)).map((act, idx, arr) => (
+                <TimelineItem key={act.id} step={idx + 1}>
+                  <TimelineHeader>
+                    <TimelineDate className="text-[10px] text-muted-foreground">
+                      {act.timestamp}
+                    </TimelineDate>
+                    <TimelineTitle className="text-xs font-medium text-foreground">
+                      {act.title}
+                    </TimelineTitle>
+                  </TimelineHeader>
+                  <TimelineIndicator className="size-2 bg-primary" />
+                  {idx < arr.length - 1 && <TimelineSeparator />}
+                  <TimelineContent className="text-[11px] text-muted-foreground/80 pb-3">
+                    <p>{act.description}</p>
+                    {act.metricSummary && (
+                      <span className="inline-block mt-1 text-[10px] font-mono text-foreground/80 bg-muted/50 px-1.5 py-0.5 rounded">
+                        {act.metricSummary}
+                      </span>
+                    )}
+                  </TimelineContent>
+                </TimelineItem>
+              ))}
+            </Timeline>
+          )}
+
+          {/* Expand / Collapse Action */}
+          {activities.length > 3 && (
+            <div className="pt-2 border-t border-border/40 text-center">
+              <button
+                type="button"
+                onClick={() => setShowAllActivities((prev) => !prev)}
+                className="text-[11px] font-medium text-primary hover:underline cursor-pointer transition-colors"
+              >
+                {showAllActivities
+                  ? "Tampilkan 3 terakhir ↑"
+                  : `Lihat semua (${activities.length} aktivitas) ↓`}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

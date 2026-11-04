@@ -43,14 +43,14 @@ export function AuthVisual() {
 
           {/* Code Content */}
           <div className="p-4 font-mono text-[11px] leading-relaxed text-card-foreground/90 overflow-x-auto selection:bg-primary/20">
-            <div className="text-muted-foreground/70">// 1. Analisis selisih visual antar-frame</div>
+            <div className="text-muted-foreground/70">{"// 1. Analisis selisih visual antar-frame"}</div>
             <div>
               <span className="text-primary font-medium">const</span> delta ={" "}
               <span className="text-blue-500">await</span>{" "}
               <span className="text-amber-500 dark:text-amber-400">interFrameDiff</span>(frameA, frameB);
             </div>
             <br />
-            <div className="text-muted-foreground/70">// 2. Seleksi frame dinamis berbasis threshold</div>
+            <div className="text-muted-foreground/70">{"// 2. Seleksi frame dinamis berbasis threshold"}</div>
             <div>
               <span className="text-primary font-medium">if</span> (delta.variance &gt;={" "}
               <span className="text-amber-600 dark:text-amber-400 font-semibold">THRESHOLD</span>) &#123;
@@ -67,7 +67,7 @@ export function AuthVisual() {
             </div>
             <div className="pl-8 text-muted-foreground">
               bitDepth: <span className="text-cyan-500 font-medium">1</span>,{" "}
-              <span className="text-muted-foreground/60">// Least Significant Bit</span>
+              <span className="text-muted-foreground/60">{"// Least Significant Bit"}</span>
             </div>
             <div className="pl-4">&#125;);</div>
             <div>&#125;</div>

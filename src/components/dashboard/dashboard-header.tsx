@@ -1,14 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import {
   BarChart3Icon,
   ChevronRightIcon,
-  FileVideoIcon,
   KeyRoundIcon,
   LayersIcon,
   LayoutDashboardIcon,
+  LogOutIcon,
   PlusIcon,
   ShieldCheckIcon,
   UploadCloudIcon,
@@ -16,6 +18,8 @@ import {
 
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { getCurrentUser, removeAuthToken } from "@/lib/api";
+import { UserProfile } from "@/types/stego";
 
 export type DashboardTabId =
   | "overview"
@@ -36,18 +40,31 @@ export const DASHBOARD_TABS: TabItem[] = [
   { id: "embed", label: "Penyisipan (Embed)", icon: UploadCloudIcon },
   { id: "extract", label: "Ekstraksi (Extract)", icon: KeyRoundIcon },
   { id: "telemetry", label: "Analisis Komparasi", icon: BarChart3Icon },
-  { id: "history", label: "Riwayat Video", badge: "24", icon: LayersIcon },
+  { id: "history", label: "Riwayat Video", icon: LayersIcon },
 ];
 
 interface DashboardHeaderProps {
   activeTab: DashboardTabId;
   onTabChange: (tab: DashboardTabId) => void;
+  projectsCount?: number;
 }
 
 export function DashboardHeader({
   activeTab,
   onTabChange,
+  projectsCount,
 }: DashboardHeaderProps) {
+  const router = useRouter();
+  const [currentUser] = useState<UserProfile | null>(() => getCurrentUser());
+
+  const handleLogout = () => {
+    removeAuthToken();
+    router.push("/login");
+  };
+
+  const userInitial = currentUser?.username?.[0]?.toUpperCase() || "U";
+  const roleName = currentUser?.role === "admin" ? "Admin" : "User";
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
       {/* Top Navbar Row */}
@@ -56,12 +73,21 @@ export function DashboardHeader({
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="group flex items-center gap-2 text-foreground font-semibold text-sm transition-opacity hover:opacity-80"
+            className="group flex items-center gap-2.5 text-foreground font-semibold text-sm transition-opacity hover:opacity-80"
           >
-            <div className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm">
-              <FileVideoIcon className="size-4" />
+            <div className="flex items-center gap-1.5 shrink-0">
+              <img
+                src="/logo-unsil.png"
+                alt="Logo Universitas Siliwangi"
+                className="h-6 w-auto object-contain"
+              />
+              <img
+                src="/logo-if.png"
+                alt="Logo Informatika UNSIL"
+                className="h-5 w-auto object-contain rounded-xs"
+              />
             </div>
-            <span className="tracking-tight hidden sm:inline">StegoAnim 2D</span>
+            <span className="tracking-tight hidden sm:inline font-bold">StegoAnim 2D</span>
           </Link>
 
           <ChevronRightIcon className="size-3.5 text-muted-foreground/40 shrink-0" />
@@ -77,7 +103,7 @@ export function DashboardHeader({
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           {/* Quick CTA */}
           <button
             type="button"
@@ -96,9 +122,31 @@ export function DashboardHeader({
 
           <ThemeToggle />
 
-          {/* User Avatar Placeholder */}
-          <div className="flex size-8 items-center justify-center rounded-full bg-muted/60 border border-border/70 text-xs font-medium text-foreground">
-            Z
+          {/* User Profile & Role Info */}
+          <div className="flex items-center gap-2 ps-1">
+            <div
+              title={`${currentUser?.username || "Pengguna"} (${roleName})`}
+              className="flex size-8 items-center justify-center rounded-full bg-primary/10 border border-primary/30 text-xs font-semibold text-primary"
+            >
+              {userInitial}
+            </div>
+            <div className="hidden md:flex flex-col text-left">
+              <span className="text-xs font-semibold text-foreground truncate max-w-[100px]">
+                {currentUser?.username || "Pengguna"}
+              </span>
+              <span className={`text-[10px] font-mono leading-none ${currentUser?.role === "admin" ? "text-amber-500 font-bold" : "text-muted-foreground"}`}>
+                {roleName}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Keluar (Logout)"
+              className="size-8 rounded-lg border border-border/60 hover:bg-muted/40 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors cursor-pointer ms-1"
+            >
+              <LogOutIcon className="size-3.5" />
+            </button>
           </div>
         </div>
       </div>
@@ -112,6 +160,7 @@ export function DashboardHeader({
           {DASHBOARD_TABS.map((tab) => {
             const isActive = activeTab === tab.id;
             const Icon = tab.icon;
+            const badge = tab.id === "history" && projectsCount !== undefined ? String(projectsCount) : tab.badge;
 
             return (
               <button
@@ -133,7 +182,7 @@ export function DashboardHeader({
                 />
                 <span>{tab.label}</span>
 
-                {tab.badge && (
+                {badge && (
                   <span
                     className={cn(
                       "ms-0.5 rounded-full px-1.5 py-0.2 text-[10px] font-semibold transition-colors",
@@ -142,7 +191,7 @@ export function DashboardHeader({
                         : "bg-muted text-muted-foreground"
                     )}
                   >
-                    {tab.badge}
+                    {badge}
                   </span>
                 )}
 

@@ -9,8 +9,20 @@ export function SiteHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 lg:px-8">
-        <Link href="/" className="font-semibold tracking-tight text-foreground">
-          StegoAnim 2D
+        <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight text-foreground hover:opacity-90 transition-opacity">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <img
+              src="/logo-unsil.png"
+              alt="Logo Universitas Siliwangi"
+              className="h-7 w-auto object-contain"
+            />
+            <img
+              src="/logo-if.png"
+              alt="Logo Informatika UNSIL"
+              className="h-6 w-auto object-contain rounded-xs"
+            />
+          </div>
+          <span className="font-bold tracking-tight text-base">StegoAnim 2D</span>
         </Link>
         <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
           <Link href="#workflow" className="transition-colors hover:text-foreground">
