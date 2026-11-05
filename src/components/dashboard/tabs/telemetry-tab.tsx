@@ -10,7 +10,6 @@ import {
 
 import { FrameMetric, StegoProject } from "@/types/stego";
 import { fetchProjectFrames } from "@/lib/api";
-import { mockFrameMetrics } from "@/lib/stego-mock-data";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
@@ -21,7 +20,7 @@ interface TelemetryTabProps {
 
 export function TelemetryTab({ projects = [], onNavigateTab }: TelemetryTabProps) {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(() => projects[0]?.id || "");
-  const [frames, setFrames] = useState<FrameMetric[]>(mockFrameMetrics);
+  const [frames, setFrames] = useState<FrameMetric[]>([]);
   const [selectedFrameIndex, setSelectedFrameIndex] = useState(0);
 
   const activeProjectId = selectedProjectId || projects[0]?.id || "";
@@ -32,12 +31,12 @@ export function TelemetryTab({ projects = [], onNavigateTab }: TelemetryTabProps
     fetchProjectFrames(activeProjectId)
       .then((data) => {
         if (!isCancelled) {
-          setFrames(data && data.length > 0 ? data : mockFrameMetrics);
+          setFrames(Array.isArray(data) ? data : []);
           setSelectedFrameIndex(0);
         }
       })
       .catch(() => {
-        if (!isCancelled) setFrames(mockFrameMetrics);
+        if (!isCancelled) setFrames([]);
       });
     return () => { isCancelled = true; };
   }, [activeProjectId]);
@@ -45,6 +44,48 @@ export function TelemetryTab({ projects = [], onNavigateTab }: TelemetryTabProps
   const currentProject = projects.find((p) => p.id === activeProjectId) || projects[0];
   const dynamicFrames = frames.filter((f) => f.isDynamicRegion).length;
   const totalBits = frames.reduce((acc, f) => acc + (f.embeddedBits || 0), 0);
+
+  // If user has 0 projects, show clean educational empty state
+  if (projects.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+              Analisis Komparasi Citra (Telemetry &amp; Frame Diff)
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              Inspeksi visual per-frame antara cover video asli dan stego-video untuk membuktikan aspek ketidaktampakan (<em>imperceptibility</em>).
+            </p>
+          </div>
+        </div>
+
+        <Card className="border-border/60 bg-card/60 backdrop-blur-xs p-12 text-center flex flex-col items-center justify-center space-y-4">
+          <div className="size-14 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+            <FileVideoIcon className="size-7" />
+          </div>
+          <div className="space-y-1.5 max-w-md">
+            <h3 className="text-base font-semibold text-foreground">
+              Belum Ada Data Telemetri Citra
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Anda belum memproses video steganografi apa pun pada akun ini. Silakan lakukan penyisipan pesan rahasia pada video cover di tab <strong>Penyisipan (Embed)</strong> terlebih dahulu untuk melihat telemetri dan analisis selisih gerak per-frame secara objektif.
+            </p>
+          </div>
+          {onNavigateTab && (
+            <button
+              type="button"
+              onClick={() => onNavigateTab("embed")}
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm cursor-pointer"
+            >
+              <PlusIcon className="size-4" />
+              <span>Mulai Penyisipan Video</span>
+            </button>
+          )}
+        </Card>
+      </div>
+    );
+  }
 
   // Export handlers
   const handleExportJSON = () => {
@@ -241,59 +282,67 @@ export function TelemetryTab({ projects = [], onNavigateTab }: TelemetryTabProps
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
-              {frames.map((f, i) => {
-                const isSelected = i === selectedFrameIndex;
-                return (
-                  <tr
-                    key={f.frameNumber}
-                    onClick={() => setSelectedFrameIndex(i)}
-                    className={`transition-colors cursor-pointer ${
-                      isSelected
-                        ? "bg-primary/10 font-medium"
-                        : "hover:bg-muted/20"
-                    }`}
-                  >
-                    <td className="py-2.5 px-3 font-mono">
-                      #{f.frameNumber}
-                      {isSelected && (
-                        <span className="ms-1.5 text-[10px] text-primary font-bold">
-                          [Aktif]
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-2.5 px-3 font-mono text-muted-foreground">
-                      {f.timestamp}
-                    </td>
-                    <td className="py-2.5 px-3 font-mono font-medium text-foreground">
-                      {f.motionDelta}
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <Badge
-                        variant="outline"
-                        className={
-                          f.isDynamicRegion
-                            ? "text-[10px] text-primary border-primary/30 bg-primary/5 py-0"
-                            : "text-[10px] text-muted-foreground border-border/50 py-0"
-                        }
-                      >
-                        {f.isDynamicRegion ? "Dinamis" : "Statis"}
-                      </Badge>
-                    </td>
-                    <td className="py-2.5 px-3 font-mono font-semibold text-emerald-500">
-                      {f.psnr} dB
-                    </td>
-                    <td className="py-2.5 px-3 font-mono font-semibold text-sky-500">
-                      {f.ssim}
-                    </td>
-                    <td className="py-2.5 px-3 font-mono text-muted-foreground">
-                      {f.mse}
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-mono text-foreground">
-                      {f.embeddedBits > 0 ? `${f.embeddedBits} bits` : "-"}
-                    </td>
-                  </tr>
-                );
-              })}
+              {frames.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-10 text-center text-muted-foreground text-xs font-mono">
+                    Sedang memuat data telemetri frame...
+                  </td>
+                </tr>
+              ) : (
+                frames.map((f, i) => {
+                  const isSelected = i === selectedFrameIndex;
+                  return (
+                    <tr
+                      key={f.frameNumber}
+                      onClick={() => setSelectedFrameIndex(i)}
+                      className={`transition-colors cursor-pointer ${
+                        isSelected
+                          ? "bg-primary/10 font-medium"
+                          : "hover:bg-muted/20"
+                      }`}
+                    >
+                      <td className="py-2.5 px-3 font-mono">
+                        #{f.frameNumber}
+                        {isSelected && (
+                          <span className="ms-1.5 text-[10px] text-primary font-bold">
+                            [Aktif]
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono text-muted-foreground">
+                        {f.timestamp}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono font-medium text-foreground">
+                        {f.motionDelta}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <Badge
+                          variant="outline"
+                          className={
+                            f.isDynamicRegion
+                              ? "text-[10px] text-primary border-primary/30 bg-primary/5 py-0"
+                              : "text-[10px] text-muted-foreground border-border/50 py-0"
+                          }
+                        >
+                          {f.isDynamicRegion ? "Dinamis" : "Statis"}
+                        </Badge>
+                      </td>
+                      <td className="py-2.5 px-3 font-mono font-semibold text-emerald-500">
+                        {f.psnr} dB
+                      </td>
+                      <td className="py-2.5 px-3 font-mono font-semibold text-sky-500">
+                        {f.ssim}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono text-muted-foreground">
+                        {f.mse}
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono text-foreground">
+                        {f.embeddedBits > 0 ? `${f.embeddedBits} bits` : "-"}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

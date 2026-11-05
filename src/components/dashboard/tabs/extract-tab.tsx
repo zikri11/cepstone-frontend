@@ -47,15 +47,14 @@ export function ExtractTab({
   );
 
   const [selectedProjectId, setSelectedProjectId] = useState<string>(
-    availableStegoVideos[0]?.id || "proj-01"
+    availableStegoVideos[0]?.id || ""
   );
   const selectedProject =
     availableStegoVideos.find((p) => p.id === selectedProjectId) ||
-    availableStegoVideos[0] ||
-    projects[0];
+    availableStegoVideos[0];
 
   const [enteredKey, setEnteredKey] = useState(
-    selectedProject?.payload?.secretKey || "stego2d-cipher-key-2026"
+    selectedProject?.payload?.secretKey || ""
   );
   const [showKey, setShowKey] = useState(false);
   const [stegoFile, setStegoFile] = useState<File | null>(null);

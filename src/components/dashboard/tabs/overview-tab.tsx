@@ -16,8 +16,7 @@ import {
   ZapIcon,
 } from "lucide-react";
 
-import { ActivityLog, FrameMetric, StegoProject } from "@/types/stego";
-import { mockFrameMetrics } from "@/lib/stego-mock-data";
+import { ActivityLog, StegoProject } from "@/types/stego";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -38,7 +37,7 @@ interface OverviewTabProps {
 }
 
 export function OverviewTab({ onNavigateTab, activities, projects }: OverviewTabProps) {
-  const [hoveredFrame, setHoveredFrame] = useState<FrameMetric | null>(null);
+  const [hoveredProject, setHoveredProject] = useState<StegoProject | null>(null);
   const [showAllActivities, setShowAllActivities] = useState(false);
 
   // Dynamic real stats computed from live projects
@@ -59,30 +58,23 @@ export function OverviewTab({ onNavigateTab, activities, projects }: OverviewTab
   const paddingX = 35;
   const paddingY = 25;
 
-  // Scales for PSNR (min: 42, max: 50)
-  const minPsnr = 42;
-  const maxPsnr = 50;
+  // Scales for PSNR (min: 40, max: 80)
+  const minPsnr = 40;
+  const maxPsnr = 80;
 
-  const getCoordinates = (index: number, psnr: number) => {
-    const x =
-      paddingX +
-      (index / (mockFrameMetrics.length - 1)) * (chartWidth - paddingX * 2);
-    const y =
-      chartHeight -
-      paddingY -
-      ((psnr - minPsnr) / (maxPsnr - minPsnr)) * (chartHeight - paddingY * 2);
-    return { x, y };
-  };
+  const points = projects.map((p, i) => {
+    const psnr = p.metrics?.psnr || 45;
+    const x = paddingX + (projects.length === 1 ? (chartWidth - paddingX * 2) / 2 : (i / (projects.length - 1)) * (chartWidth - paddingX * 2));
+    const y = chartHeight - paddingY - Math.min(1, Math.max(0, (psnr - minPsnr) / (maxPsnr - minPsnr))) * (chartHeight - paddingY * 2);
+    return { x, y, project: p, psnr };
+  });
 
-  // Generate SVG path for line and area
-  const points = mockFrameMetrics.map((f, i) => getCoordinates(i, f.psnr));
-  const linePath = points.reduce(
-    (acc, pt, i) => (i === 0 ? `M ${pt.x},${pt.y}` : `${acc} L ${pt.x},${pt.y}`),
-    ""
-  );
-  const areaPath = `${linePath} L ${points[points.length - 1].x},${
-    chartHeight - paddingY
-  } L ${points[0].x},${chartHeight - paddingY} Z`;
+  const linePath = points.length > 1
+    ? points.reduce((acc, pt, i) => (i === 0 ? `M ${pt.x},${pt.y}` : `${acc} L ${pt.x},${pt.y}`), "")
+    : "";
+  const areaPath = points.length > 1
+    ? `${linePath} L ${points[points.length - 1].x},${chartHeight - paddingY} L ${points[0].x},${chartHeight - paddingY} Z`
+    : "";
 
   return (
     <div className="space-y-6">
@@ -217,133 +209,135 @@ export function OverviewTab({ onNavigateTab, activities, projects }: OverviewTab
         </div>
 
         {/* SVG Curve Display */}
-        <div className="relative w-full overflow-x-auto">
-          <svg
-            viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-            className="w-full h-44 overflow-visible"
-          >
-            <defs>
-              <linearGradient id="psnrGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.0" />
-              </linearGradient>
-            </defs>
+        {projects.length === 0 ? (
+          <div className="py-12 text-center text-muted-foreground text-xs font-mono space-y-1">
+            <p>Belum ada rekaman evaluasi citra pada akun ini.</p>
+            <p className="text-[11px] text-muted-foreground/70">Mulai proses penyisipan pada tab Embed untuk melihat grafik kualitas citra PSNR.</p>
+          </div>
+        ) : (
+          <div className="relative w-full overflow-x-auto">
+            <svg
+              viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+              className="w-full h-44 overflow-visible"
+            >
+              <defs>
+                <linearGradient id="psnrGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
 
-            {/* Horizontal Grid Lines */}
-            {[42, 44, 46, 48, 50].map((val) => {
-              const y =
-                chartHeight -
-                paddingY -
-                ((val - minPsnr) / (maxPsnr - minPsnr)) *
-                  (chartHeight - paddingY * 2);
-              return (
-                <g key={val}>
-                  <line
-                    x1={paddingX}
-                    y1={y}
-                    x2={chartWidth - paddingX}
-                    y2={y}
-                    stroke="currentColor"
-                    className="text-border/40"
-                    strokeDasharray="3 3"
-                  />
-                  <text
-                    x={paddingX - 6}
-                    y={y + 3}
-                    textAnchor="end"
-                    className="text-[9px] fill-muted-foreground font-mono"
+              {/* Horizontal Grid Lines */}
+              {[40, 50, 60, 70, 80].map((val) => {
+                const y =
+                  chartHeight -
+                  paddingY -
+                  ((val - minPsnr) / (maxPsnr - minPsnr)) *
+                    (chartHeight - paddingY * 2);
+                return (
+                  <g key={val}>
+                    <line
+                      x1={paddingX}
+                      y1={y}
+                      x2={chartWidth - paddingX}
+                      y2={y}
+                      stroke="currentColor"
+                      className="text-border/40"
+                      strokeDasharray="3 3"
+                    />
+                    <text
+                      x={paddingX - 6}
+                      y={y + 3}
+                      textAnchor="end"
+                      className="text-[9px] fill-muted-foreground font-mono"
+                    >
+                      {val}
+                    </text>
+                  </g>
+                );
+              })}
+
+              {/* Threshold Line (40 dB baseline) */}
+              <line
+                x1={paddingX}
+                y1={chartHeight - paddingY}
+                x2={chartWidth - paddingX}
+                y2={chartHeight - paddingY}
+                stroke="rgba(239, 68, 68, 0.6)"
+                strokeDasharray="4 4"
+                strokeWidth="1.5"
+              />
+
+              {/* Area Fill */}
+              {areaPath && <path d={areaPath} fill="url(#psnrGradient)" />}
+
+              {/* Main PSNR Line */}
+              {linePath && (
+                <path
+                  d={linePath}
+                  fill="none"
+                  stroke="var(--primary)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+
+              {/* Project Data Circles */}
+              {points.map((pt) => {
+                const isHovered = hoveredProject?.id === pt.project.id;
+
+                return (
+                  <g
+                    key={pt.project.id}
+                    className="cursor-pointer"
+                    onMouseEnter={() => setHoveredProject(pt.project)}
+                    onMouseLeave={() => setHoveredProject(null)}
                   >
-                    {val}
-                  </text>
-                </g>
-              );
-            })}
+                    <circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r={isHovered ? 6 : 4}
+                      className="fill-primary stroke-background stroke-2 transition-all"
+                    />
+                    {/* Invisible larger hover area */}
+                    <circle cx={pt.x} cy={pt.y} r={14} fill="transparent" />
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        )}
 
-            {/* Threshold Line (40 dB equivalent or baseline at 42) */}
-            <line
-              x1={paddingX}
-              y1={chartHeight - paddingY}
-              x2={chartWidth - paddingX}
-              y2={chartHeight - paddingY}
-              stroke="rgba(239, 68, 68, 0.6)"
-              strokeDasharray="4 4"
-              strokeWidth="1.5"
-            />
-
-            {/* Area Fill */}
-            <path d={areaPath} fill="url(#psnrGradient)" />
-
-            {/* Main PSNR Line */}
-            <path
-              d={linePath}
-              fill="none"
-              stroke="var(--primary)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-
-            {/* Frame Data Circles */}
-            {mockFrameMetrics.map((f, i) => {
-              const { x, y } = getCoordinates(i, f.psnr);
-              const isHovered = hoveredFrame?.frameNumber === f.frameNumber;
-
-              return (
-                <g
-                  key={f.frameNumber}
-                  className="cursor-pointer"
-                  onMouseEnter={() => setHoveredFrame(f)}
-                  onMouseLeave={() => setHoveredFrame(null)}
-                >
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r={isHovered ? 5.5 : 3}
-                    className={
-                      f.isDynamicRegion
-                        ? "fill-primary stroke-background stroke-2 transition-all"
-                        : "fill-muted-foreground/60 stroke-background stroke-2 transition-all"
-                    }
-                  />
-                  {/* Invisible larger hover area */}
-                  <circle cx={x} cy={y} r={12} fill="transparent" />
-                </g>
-              );
-            })}
-          </svg>
-        </div>
-
-        {/* Hovered Frame Info Bar */}
+        {/* Hovered Project Info Bar */}
         <div className="h-9 px-3 rounded-lg bg-muted/30 border border-border/50 flex items-center justify-between text-xs">
-          {hoveredFrame ? (
+          {hoveredProject ? (
             <div className="flex items-center gap-4 text-xs font-mono">
-              <span className="font-medium text-foreground">
-                Frame #{hoveredFrame.frameNumber} ({hoveredFrame.timestamp})
+              <span className="font-medium text-foreground truncate max-w-[200px]">
+                {hoveredProject.title || hoveredProject.filename}
               </span>
               <span className="text-emerald-500 font-semibold">
-                PSNR: {hoveredFrame.psnr} dB
+                PSNR: {hoveredProject.metrics?.psnr || 0} dB
               </span>
               <span className="text-sky-500">
-                SSIM: {hoveredFrame.ssim}
+                SSIM: {hoveredProject.metrics?.ssim || 0}
               </span>
               <span className="text-muted-foreground">
-                Delta Gerak (&Delta;): {hoveredFrame.motionDelta}
+                Payload: {((hoveredProject.metrics?.payloadSizeBytes || 0) / 1024).toFixed(1)} KB
               </span>
               <Badge
                 variant="outline"
-                className={
-                  hoveredFrame.isDynamicRegion
-                    ? "text-[10px] text-primary border-primary/30"
-                    : "text-[10px] text-muted-foreground border-border/60"
-                }
+                className="text-[10px] text-primary border-primary/30"
               >
-                {hoveredFrame.isDynamicRegion ? "Frame Dinamis (Disisipkan)" : "Frame Statis"}
+                {hoveredProject.status === "embedded" ? "Stego Siap" : "Terekstraksi"}
               </Badge>
             </div>
           ) : (
             <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
               <InfoIcon className="size-3 text-muted-foreground" />
-              Arahkan kursor ke titik grafik untuk memeriksa metrik detail per-frame.
+              {projects.length > 0
+                ? "Arahkan kursor ke titik grafik untuk memeriksa metrik proyek."
+                : "Belum ada proyek yang dapat dievaluasi."}
             </span>
           )}
 
